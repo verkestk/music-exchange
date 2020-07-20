@@ -18,12 +18,11 @@ type response struct {
 }
 
 type participant struct {
-	Name                  string
-	ID                    string
-	LatestRecipient       string
-	SecondLatestRecipient string
-	Platforms             []string
-	Responses             []*response
+	Name             string
+	ID               string
+	LatestRecipients []string
+	Platforms        []string
+	Responses        []*response
 }
 
 type instructions struct {
@@ -147,16 +146,12 @@ func ok(givers, receivers []*participant) bool {
 			return false
 		}
 
-		// avoid pairing the same people from last time
-		if *avoid > 0 && givers[i].LatestRecipient == receivers[i].ID {
-			log.Printf("%s gave to %s last time they participated\n", givers[i].ID, receivers[i].ID)
-			return false
-		}
-
-		// avoid pairing the same people from last time
-		if *avoid > 1 && givers[i].SecondLatestRecipient == receivers[i].ID {
-			log.Printf("%s gave to %s last time they participated\n", givers[i].ID, receivers[i].ID)
-			return false
+		// avoid pairing the same people
+		for j := 0; j < *avoid && j < len(givers[i].LatestRecipients); j++ {
+			if givers[i].LatestRecipients[j] == receivers[i].ID {
+				log.Printf("%s gave to %s %d times ago\n", givers[i].ID, receivers[i].ID, j+1)
+				return false
+			}
 		}
 
 		// the giver and the receiver must have at least one platform in common

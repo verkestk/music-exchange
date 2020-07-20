@@ -1,8 +1,7 @@
 [{
     "Name": "",
     "ID": "",
-    "LatestRecipient": "",
-    "SecondLatestRecipient": "",
+    "LatestRecipients": [],
     "Platforms": [
       ""
     ],
@@ -25,8 +24,7 @@
   }, {
     "Name": "",
     "ID": "",
-    "LatestRecipient": "",
-    "SecondLatestRecipient": "",
+    "LatestRecipients": [],
     "Platforms": [
       ""
     ],
@@ -49,8 +47,7 @@
   }, {
     "Name": "",
     "ID": "",
-    "LatestRecipient": "",
-    "SecondLatestRecipient": "",
+    "LatestRecipients": [],
     "Platforms": [
       ""
     ],
@@ -73,8 +70,7 @@
   }, {
     "Name": "",
     "ID": "",
-    "LatestRecipient": "",
-    "SecondLatestRecipient": "",
+    "LatestRecipients": [],
     "Platforms": [
       ""
     ],
@@ -97,8 +93,7 @@
   }, {
     "Name": "",
     "ID": "",
-    "LatestRecipient": "",
-    "SecondLatestRecipient": "",
+    "LatestRecipients": [],
     "Platforms": [
       ""
     ],

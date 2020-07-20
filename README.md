@@ -17,4 +17,4 @@ And to avoid the last 2 recipients:
 go run main.go --avoid=2 --filepath=./people.json
 ```
 
-Warning, if there's no combination that satisfies avoid=1 or avoid=2, then this will run in an infinite loop.
+And so on. Warning, if there's no combination that satisfies all the requirements, then this can run in an infinite loop. So be prepared to kill the process.
