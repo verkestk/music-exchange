@@ -20,6 +20,7 @@ type response struct {
 type participant struct {
 	Name             string
 	ID               string
+	Skip             bool
 	LatestRecipients []string
 	Platforms        []string
 	Responses        []*response
@@ -84,10 +85,17 @@ func main() {
 	}
 
 	participants := []*participant{}
-	err = json.Unmarshal(byteValue, &participants)
+	allParticipants := []*participant{}
+	err = json.Unmarshal(byteValue, &allParticipants)
 
 	if err != nil {
 		log.Fatalln(err)
+	}
+
+	for _, p := range allParticipants {
+		if !p.Skip {
+			participants = append(participants, p)
+		}
 	}
 
 	if len(participants) < 2 {

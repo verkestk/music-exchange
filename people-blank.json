@@ -1,6 +1,7 @@
 [{
     "Name": "",
     "ID": "",
+    "Skip": true,
     "LatestRecipients": [],
     "Platforms": [
       ""
