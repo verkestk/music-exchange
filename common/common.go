@@ -123,3 +123,16 @@ func (p *Participant) WriteInstructions(recipient *Participant) error {
 
 	return nil
 }
+
+// IsCompatible returns true if the participants have at least one music platform in common
+func (p *Participant) IsCompatible(otherParticipant *Participant) bool {
+	for _, pPlatform := range p.Platforms {
+		for _, opPlatform := range otherParticipant.Platforms {
+			if pPlatform == opPlatform {
+				return true
+			}
+		}
+	}
+
+	return false
+}

@@ -62,24 +62,11 @@ func ok(givers, receivers []*common.Participant, avoid int) bool {
 		}
 
 		// the giver and the receiver must have at least one platform in common
-		if countOverlap(givers[i].Platforms, receivers[i].Platforms) == 0 {
+		if !givers[i].IsCompatible(receivers[i]) {
 			log.Printf("%s and %s have no platforms in common\n", givers[i].ID, receivers[i].ID)
 			return false
 		}
 	}
 
 	return true
-}
-
-func countOverlap(s1, s2 []string) int {
-	overlap := map[string]bool{}
-	for _, s1Val := range s1 {
-		for _, s2Val := range s2 {
-			if s1Val == s2Val {
-				overlap[s1Val] = true
-			}
-		}
-	}
-
-	return len(overlap)
 }
