@@ -7,17 +7,17 @@ This script takes a JSON file as input and outputs markdown files containing ins
 
 This basic run avoids someone being paired with themself.
 ```
-go run main.go --avoid=0 --filepath=./people.json
+go run main.go bfRandom --filepath=./people.json --avoid=0
 ```
 
 To avoid getting the same recipient you go last time, run thus:
 ```
-go run main.go --avoid=1 --filepath=./people.json
+go run main.go bfRandom --filepath=./people.json --avoid=1
 ```
 
 And to avoid the last 2 recipients:
 ```
-go run main.go --avoid=2 --filepath=./people.json
+go run main.go bfRandom --filepath=./people.json --avoid=2
 ```
 
 And so on. Warning, if there's no combination that satisfies all the requirements, then this can run in an infinite loop. So be prepared to kill the process.
