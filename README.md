@@ -7,6 +7,20 @@ This script takes a JSON file as input and outputs markdown files containing ins
 
 There are 2 ways of generating the list.
 
+### brute force scored
+
+This approach generates all possible compatible pairings and scores them based on how recently that participant has been pair previously with the same recipient.
+
+Pairing sets with the best sum scores are preferred. Amongst those set, the best individual scores are preferred. Amongst those, the longest cycles are preferred. Amongst those, a random set is selected.
+
+There's only one way to run this command.
+
+```
+go run main.go bfScored --filepath=./people.json
+```
+
+This approach is smarter and does not have a risk of running in an infinite loop.
+
 ### brute force random
 
 This approach shuffles the participants until a set of compatible pairs are found.
@@ -27,20 +41,6 @@ go run main.go bfRandom --filepath=./people.json --avoid=2
 ```
 
 And so on. _**Warning**: if there's no combination that satisfies all the requirements, then this can run in an infinite loop. So be prepared to kill the process._
-
-### brute force scored
-
-This approach generates all possible compatible pairings and scores them based on how recently that participant has been pair previously with the same recipient.
-
-Pairing sets with the best sum scores are preferred. Amongst those set, the best individual scores are preferred. Amongst those, a random set is used.
-
-There's only one way to run this command.
-
-```
-go run main.go bfScored --filepath=./people.json
-```
-
-This approach is smarter and does not have a risk of running in an infinite loop.
 
 ## the JSON file
 

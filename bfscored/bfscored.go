@@ -14,9 +14,10 @@ type pair struct {
 }
 
 type pairSet struct {
-	pairs    []*pair
-	maxScore float64
-	sumScore float64
+	pairs          []*pair
+	maxScore       float64
+	sumScore       float64
+	minCycleLength int
 }
 
 // DoExchange matches particpants as givers and recipients, generating files with instructions for each participant
@@ -36,9 +37,13 @@ func DoExchange(participants []*common.Participant) error {
 
 	fmt.Println("max score", maxScore, len(lowestMaxScorePairSets))
 
-	randomPairSet := getRandomPairSet(lowestMaxScorePairSets)
+	longestMinCyclePairSets, minCycleLength := getLongestMinCyclePairSets(lowestMaxScorePairSets)
 
-	fmt.Printf("optimal pair set with sumScore of %f and maxScore of %f\n", sumScore, maxScore)
+	fmt.Println("min cycle length", minCycleLength, len(longestMinCyclePairSets))
+
+	randomPairSet := getRandomPairSet(longestMinCyclePairSets)
+
+	fmt.Printf("optimal pair set with sumScore of %f and maxScore of %f and minCycleLength of %d\n", sumScore, maxScore, minCycleLength)
 
 	if maxScore > 0 {
 		fmt.Println("A perfect pairing set was not found, so this is the best we came up with")
@@ -84,6 +89,7 @@ func generateAllPairSets(participants []*common.Participant) []*pairSet {
 		if isOrderValid {
 			maxScore := float64(0)
 			sumScore := float64(0)
+			minCycleLength := getMinCycleLength(setPairs)
 
 			for _, sp := range setPairs {
 				score := sp.score()
@@ -93,11 +99,28 @@ func generateAllPairSets(participants []*common.Participant) []*pairSet {
 				sumScore += score
 			}
 
-			pairSets = append(pairSets, &pairSet{pairs: setPairs, maxScore: maxScore, sumScore: sumScore})
+			pairSets = append(pairSets, &pairSet{pairs: setPairs, maxScore: maxScore, sumScore: sumScore, minCycleLength: minCycleLength})
 		}
 	}
 
 	return pairSets
+}
+
+func getLongestMinCyclePairSets(pairSets []*pairSet) (sets []*pairSet, minCycleLength int) {
+	sets = []*pairSet{}
+	minCycleLength = -1
+
+	for _, ps := range pairSets {
+		if minCycleLength < 0 || ps.minCycleLength > minCycleLength {
+			// new lowest sumScore
+			minCycleLength = ps.minCycleLength
+			sets = []*pairSet{ps}
+		} else if minCycleLength == ps.minCycleLength {
+			sets = append(sets, ps)
+		}
+	}
+
+	return sets, minCycleLength
 }
 
 func getLowestSumScorePairSets(pairSets []*pairSet) (sets []*pairSet, sumScore float64) {
@@ -132,6 +155,31 @@ func getLowestMaxScorePairSets(pairSets []*pairSet) (sets []*pairSet, maxScore f
 	}
 
 	return sets, maxScore
+}
+
+func getMinCycleLength(pairs []*pair) (minCycleLength int) {
+	minCycleLength = -1
+
+	giverIDtoPair := map[string]*pair{}
+	for _, p := range pairs {
+		giverIDtoPair[p.giver.ID] = p
+	}
+
+	for _, p := range pairs {
+		cycleLength := 1
+		originalGiver := p.giver
+		currentPair := p
+		for originalGiver.ID != currentPair.receiver.ID {
+			cycleLength++
+			currentPair = giverIDtoPair[currentPair.receiver.ID]
+		}
+
+		if minCycleLength == -1 || cycleLength < minCycleLength {
+			minCycleLength = cycleLength
+		}
+	}
+
+	return minCycleLength
 }
 
 func getRandomPairSet(pairSets []*pairSet) *pairSet {
