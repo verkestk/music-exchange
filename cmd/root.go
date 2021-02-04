@@ -3,14 +3,17 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"text/template"
 
 	"github.com/spf13/cobra"
 
 	"github.com/verkestk/music-exchange/common"
 )
 
-var filepath string
+var participantsFilepath string
+var instructionsFilepath string
 var participants []*common.Participant
+var instructionsTMPL *template.Template
 
 var rootCmd = &cobra.Command{
 	Use:   "musex",
@@ -24,7 +27,8 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&filepath, "filepath", "f", "", "input file containing participants")
+	rootCmd.PersistentFlags().StringVarP(&participantsFilepath, "participants", "p", "", "input file containing participants")
+	rootCmd.PersistentFlags().StringVarP(&instructionsFilepath, "instructions", "i", "", "input file containing instructions template")
 }
 
 // Execute executes a CLI command - boilerplate for cobra

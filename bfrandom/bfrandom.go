@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"text/template"
 	"time"
 
 	"github.com/verkestk/music-exchange/common"
 )
 
 // DoExchange matches particpants as givers and recipients, generating files with instructions for each participant
-func DoExchange(participants []*common.Participant, avoid int) error {
+func DoExchange(participants []*common.Participant, instructionsTMPL *template.Template, avoid int) error {
 
 	targets := copy(participants)
 	shuffle(participants, targets, avoid)
@@ -18,7 +19,7 @@ func DoExchange(participants []*common.Participant, avoid int) error {
 	fmt.Println("participants")
 	for i := range participants {
 
-		err := participants[i].WriteInstructions(targets[i])
+		err := participants[i].WriteInstructions(targets[i], instructionsTMPL)
 		if err != nil {
 			return err
 		}

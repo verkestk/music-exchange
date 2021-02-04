@@ -3,6 +3,7 @@ package bfscored
 import (
 	"fmt"
 	"math/rand"
+	"text/template"
 	"time"
 
 	"github.com/verkestk/music-exchange/common"
@@ -21,7 +22,7 @@ type pairSet struct {
 }
 
 // DoExchange matches particpants as givers and recipients, generating files with instructions for each participant
-func DoExchange(participants []*common.Participant) error {
+func DoExchange(participants []*common.Participant, instructionsTMPL *template.Template) error {
 	pairSets := generateAllPairSets(participants)
 
 	if len(pairSets) == 0 {
@@ -57,7 +58,7 @@ func DoExchange(participants []*common.Participant) error {
 	}
 
 	for _, p := range randomPairSet.pairs {
-		err := p.giver.WriteInstructions(p.receiver)
+		err := p.giver.WriteInstructions(p.receiver, instructionsTMPL)
 		if err != nil {
 			return err
 		}

@@ -16,7 +16,7 @@ Pairing sets with the best sum scores are preferred. Amongst those set, the best
 There's only one way to run this command.
 
 ```
-go run main.go bfScored --filepath=./people.json
+go run main.go bfScored --participants=./people.json --instructions=./instructions-template.md
 ```
 
 This approach is smarter and does not have a risk of running in an infinite loop.
@@ -27,22 +27,22 @@ This approach shuffles the participants until a set of compatible pairs are foun
 
 This basic run avoids someone being paired with themself.
 ```
-go run main.go bfRandom --filepath=./people.json --avoid=0
+go run main.go bfRandom --participants=./people.json --instructions=./instructions-template.md --avoid=0
 ```
 
 To avoid getting the same recipient you go last time, run thus:
 ```
-go run main.go bfRandom --filepath=./people.json --avoid=1
+go run main.go bfRandom --participants=./people.json --instructions=./instructions-template.md --avoid=1
 ```
 
 And to avoid the last 2 recipients:
 ```
-go run main.go bfRandom --filepath=./people.json --avoid=2
+go run main.go bfRandom --particpants=./people.json --instructions=./instructions-template.md --avoid=2
 ```
 
 And so on. _**Warning**: if there's no combination that satisfies all the requirements, then this can run in an infinite loop. So be prepared to kill the process._
 
-## the JSON file
+## the participants JSON file
 
 ```
 [{
@@ -81,10 +81,8 @@ And so on. _**Warning**: if there's no combination that satisfies all the requir
 * **Platforms**: what music platforms this participant uses. This tool will only pair people with at least one platform in common (list must contain at least one identical string).
 * **Responses**: list of general questions and answers. These are included in the instructions. Can be used for things like capturing someone's musical preferences.
 
-## the markdown file Instructions
+## the instructions markdown file
 
-Running the script results in the creation of individual markdown files containing instructions for each participant. Don't peak if you want it to be a surprise!
+You can take the instructions file in this repo and modify it as much as you like. Or you can pass a different kind of file to the command - it doesn't need to be MD format.
 
-These instructions are generated with a golang template. Modify the template if you want to change the instructions.
-
-Share the instructions however you want - like in an email! And have fun!
+This instructions file must be a void golang template.

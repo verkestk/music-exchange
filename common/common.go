@@ -25,52 +25,12 @@ type Participant struct {
 }
 
 // Instructions contains the information necessary for generating exchange instructions
-// Works with InstructionsMdTemplate
+// Works with the instructions MD template
 type Instructions struct {
 	GiverName         string
 	ReceiverName      string
 	ReceiverResponses []*Response
 	ReceiverPlatforms []string
-}
-
-// InstructionsMdTemplate is a template for exchange instructions
-// works with Instructions struct
-var instructionsMdTemplateStr = `# Secret Music Exchange!
-
-Dear {{.GiverName}},
-
-You will be selecting music for **{{.ReceiverName}}**.
-
-Here's what they had to say about themselves:
-
-<dl>
-{{ range .ReceiverResponses }}
-  <dt>{{ .Question }}</dt>
-  <dd>{{ .Answer }}</dd><br/>
-{{ end }}
-</dl>
-
-### Instructions
-
-##### 1: Select Music
-Create a sharable playlist (between 45 and 75 minutes) on one of the platforms your recipient uses:
-
-{{ range .ReceiverPlatforms }}- {{ . }}
-{{ end }}
-##### 2: Copy Link
-If you are using an album, copy the album link from Spotify. If you are creating a playlist, copy the playlist link.
-
-##### 3: Share Music
-We'll do this all at once. When it's time, you will share that link on Slack. @mention then in the #music-appreciation channel, so we can all see what you picked.
-
-##### 4: Enjoy the music shared with you!
-You'll be getting some music to enjoy too.
-`
-
-var instructionsMdTemplate *template.Template
-
-func init() {
-	instructionsMdTemplate = template.Must(template.New("mdTemplate").Parse(instructionsMdTemplateStr))
 }
 
 // GetParticipantsFromFile transforms the json is a file to a slice of Particpant
@@ -102,7 +62,7 @@ func GetParticipantsFromFile(filepath string) ([]*Participant, error) {
 }
 
 // WriteInstructions outputs the instructions as MD in a file
-func (p *Participant) WriteInstructions(recipient *Participant) error {
+func (p *Participant) WriteInstructions(recipient *Participant, instructionsTMPL *template.Template) error {
 	instr := &Instructions{
 		GiverName:         p.Name,
 		ReceiverName:      recipient.Name,
@@ -111,7 +71,7 @@ func (p *Participant) WriteInstructions(recipient *Participant) error {
 	}
 
 	tmplBytes := bytes.Buffer{}
-	err := instructionsMdTemplate.Execute(&tmplBytes, instr)
+	err := instructionsTMPL.Execute(&tmplBytes, instr)
 	if err != nil {
 		return fmt.Errorf("error creating instructions text: %w", err)
 	}
