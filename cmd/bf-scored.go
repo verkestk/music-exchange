@@ -11,11 +11,7 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(bfScoredCmd)
-	bfScoredCmd.Flags().StringVarP(&participantsFilepath, "participants", "p", "", "input file containing participants")
-	bfScoredCmd.Flags().StringVarP(&instructionsFilepath, "instructions", "i", "", "input file containing instructions template")
-	bfScoredCmd.MarkFlagRequired("participants")
-	bfScoredCmd.MarkFlagRequired("instructions")
+	pairRootCmd.AddCommand(bfScoredCmd)
 }
 
 var bfScoredCmd = &cobra.Command{

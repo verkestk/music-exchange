@@ -13,12 +13,8 @@ import (
 var avoid int
 
 func init() {
-	rootCmd.AddCommand(bfRandomCmd)
-	bfRandomCmd.Flags().StringVarP(&participantsFilepath, "participants", "p", "", "input file containing participants")
-	bfRandomCmd.Flags().StringVarP(&instructionsFilepath, "instructions", "i", "", "input file containing instructions template")
+	pairRootCmd.AddCommand(bfRandomCmd)
 	bfRandomCmd.Flags().IntVarP(&avoid, "avoid", "a", 0, "how many past recipients to avoid")
-	bfRandomCmd.MarkFlagRequired("participants")
-	bfRandomCmd.MarkFlagRequired("instructions")
 }
 
 var bfRandomCmd = &cobra.Command{

@@ -3,17 +3,9 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"text/template"
 
 	"github.com/spf13/cobra"
-
-	"github.com/verkestk/music-exchange/common"
 )
-
-var participantsFilepath string
-var instructionsFilepath string
-var participants []*common.Participant
-var instructionsTMPL *template.Template
 
 var rootCmd = &cobra.Command{
 	Use:   "musex",
