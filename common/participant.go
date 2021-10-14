@@ -11,6 +11,12 @@ import (
 	"text/template"
 )
 
+// Pair is a pair of participants
+type Pair struct {
+	Giver    *Participant
+	Receiver *Participant
+}
+
 // Response is a simple question/answer pair
 type Response struct {
 	Question string
@@ -19,7 +25,7 @@ type Response struct {
 
 // Participant represents a person who will give/receive in the exchange
 type Participant struct {
-	Username         string // must be unique
+	EmailAddress     string // must be unique
 	Skip             bool
 	LatestRecipients []string
 	Platforms        []string
@@ -64,7 +70,7 @@ func GetParticipantsFromJSONFile(filepath string, skip bool) ([]*Participant, er
 }
 
 // GetParticipantsFromCSVFile transforms the CSV in a file to a slice of Particpant
-func GetParticipantsFromCSVFile(filepath string, usernameColumn, platformsColumn int, ignoreColumns []int, platformsSeparator string) ([]*Participant, error) {
+func GetParticipantsFromCSVFile(filepath string, emailAddressColumn, platformsColumn int, ignoreColumns []int, platformsSeparator string) ([]*Participant, error) {
 	reader, err := os.Open(filepath)
 	if err != nil {
 		return nil, err
@@ -83,7 +89,7 @@ func GetParticipantsFromCSVFile(filepath string, usernameColumn, platformsColumn
 	// get the list of arbitrary questions from the header row
 	questions := []string{}
 	for index, questionText := range rows[0] {
-		if index == usernameColumn || index == platformsColumn {
+		if index == emailAddressColumn || index == platformsColumn {
 			continue
 		}
 		ignore := false
@@ -104,14 +110,14 @@ func GetParticipantsFromCSVFile(filepath string, usernameColumn, platformsColumn
 	participants := []*Participant{}
 	for _, row := range rows[1:] {
 		participant := &Participant{
-			Username:  row[usernameColumn],
-			Platforms: strings.Split(row[platformsColumn], platformsSeparator),
-			Responses: []*Response{},
+			EmailAddress: row[emailAddressColumn],
+			Platforms:    strings.Split(row[platformsColumn], platformsSeparator),
+			Responses:    []*Response{},
 		}
 
 		// get the questions
 		for index, field := range row {
-			if index == usernameColumn || index == platformsColumn {
+			if index == emailAddressColumn || index == platformsColumn {
 				continue
 			}
 			ignore := false
@@ -136,12 +142,11 @@ func GetParticipantsFromCSVFile(filepath string, usernameColumn, platformsColumn
 	return participants, nil
 }
 
-// WriteInstructions outputs the instructions as MD in a file
-func (p *Participant) WriteInstructions(recipient *Participant, instructionsTMPL *template.Template) error {
-	recipientName := recipient.Username
+func (p *Participant) getInstructions(recipient *Participant, instructionsTMPL *template.Template) (string, error) {
+	recipientName := recipient.EmailAddress
 
 	instr := &Instructions{
-		GiverName:         p.Username,
+		GiverName:         p.EmailAddress,
 		ReceiverName:      recipientName,
 		ReceiverResponses: recipient.Responses,
 		ReceiverPlatforms: recipient.Platforms,
@@ -150,15 +155,10 @@ func (p *Participant) WriteInstructions(recipient *Participant, instructionsTMPL
 	tmplBytes := bytes.Buffer{}
 	err := instructionsTMPL.Execute(&tmplBytes, instr)
 	if err != nil {
-		return fmt.Errorf("error creating instructions text: %w", err)
+		return "", fmt.Errorf("error creating instructions text: %w", err)
 	}
 
-	err = ioutil.WriteFile(fmt.Sprintf("%s.md", p.Username), tmplBytes.Bytes(), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing instructions file: %w", err)
-	}
-
-	return nil
+	return tmplBytes.String(), nil
 }
 
 // IsCompatible returns true if the participants have at least one music platform in common
@@ -181,17 +181,17 @@ func MergeParticipants(participants, previousParticipants []*Participant) []*Par
 	// map participants by ID
 	currentParticipantsMap := map[string]*Participant{}
 	for _, participant := range participants {
-		currentParticipantsMap[participant.Username] = participant
+		currentParticipantsMap[participant.EmailAddress] = participant
 	}
 
 	for _, previousParticipant := range previousParticipants {
-		if currentParticipant, ok := currentParticipantsMap[previousParticipant.Username]; ok {
+		if currentParticipant, ok := currentParticipantsMap[previousParticipant.EmailAddress]; ok {
 			// this previous participant is already in the particpants list
 			currentParticipant.LatestRecipients = previousParticipant.LatestRecipients
 		} else {
 			// this previous participant isn't participating this time
 			participants = append(participants, &Participant{
-				Username:         previousParticipant.Username,
+				EmailAddress:     previousParticipant.EmailAddress,
 				LatestRecipients: previousParticipant.LatestRecipients,
 				Skip:             true,
 			})
@@ -204,4 +204,55 @@ func MergeParticipants(participants, previousParticipants []*Participant) []*Par
 func GenerateParticipantsJSON(participants []*Participant) (string, error) {
 	bytes, err := json.MarshalIndent(participants, "", "  ")
 	return string(bytes), err
+}
+
+// Score provides a score for the pair based on previous pairings
+func (p *Pair) Score() float64 {
+	score := float64(0)
+	for i, previousRecipient := range p.Giver.LatestRecipients {
+		if previousRecipient == p.Receiver.EmailAddress {
+			score += float64(1) / float64(i+1)
+		}
+	}
+
+	return score
+}
+
+// EmailInstructions emails the instructions to the participants based on provided email template
+func EmailInstructions(pairs []*Pair, tmpl *template.Template, subject, emailTestRecipient, smtpHostEnvVar, smtpPortEnvVar, smtpUsernameEnvVar, smtpPasswordEnvVar string) error {
+	// TODO how to handling errors?
+	for _, pair := range pairs {
+		instructions, err := pair.Giver.getInstructions(pair.Receiver, tmpl)
+		if err != nil {
+			return err
+		}
+
+		instructionsRecipient := pair.Giver.EmailAddress
+		if emailTestRecipient != "" {
+			instructionsRecipient = emailTestRecipient
+		}
+		fmt.Printf("sending instructions for %s to %s\n", pair.Giver.EmailAddress, instructionsRecipient)
+		err = sendHTMLMail(subject, instructions, instructionsRecipient, smtpHostEnvVar, smtpPortEnvVar, smtpUsernameEnvVar, smtpPasswordEnvVar)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// WriteInstructions write the instructions for the participants to local files based on provided template
+func WriteInstructions(pairs []*Pair, tmpl *template.Template, extension string) error {
+	for _, pair := range pairs {
+		instructions, err := pair.Giver.getInstructions(pair.Receiver, tmpl)
+		if err != nil {
+			return err
+		}
+
+		err = ioutil.WriteFile(fmt.Sprintf("%s.%s", pair.Giver.EmailAddress, extension), []byte(instructions), 0644)
+		if err != nil {
+			return fmt.Errorf("error writing instructions file: %w", err)
+		}
+	}
+	return nil
 }

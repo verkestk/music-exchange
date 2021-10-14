@@ -11,11 +11,11 @@ func Test_generateAllPairSets(t *testing.T) {
 }
 
 func Test_getLongestMinCyclePairSets(t *testing.T) {
-	woody := &common.Participant{Username: "woody", Platforms: []string{"TheClaw"}}
-	buzz := &common.Participant{Username: "buzz", Platforms: []string{"TheClaw"}}
-	rex := &common.Participant{Username: "rex", Platforms: []string{"TheClaw"}}
-	hamm := &common.Participant{Username: "hamm", Platforms: []string{"TheClaw"}}
-	jessie := &common.Participant{Username: "jessie", Platforms: []string{"TheClaw"}}
+	woody := &common.Participant{EmailAddress: "woody", Platforms: []string{"TheClaw"}}
+	buzz := &common.Participant{EmailAddress: "buzz", Platforms: []string{"TheClaw"}}
+	rex := &common.Participant{EmailAddress: "rex", Platforms: []string{"TheClaw"}}
+	hamm := &common.Participant{EmailAddress: "hamm", Platforms: []string{"TheClaw"}}
+	jessie := &common.Participant{EmailAddress: "jessie", Platforms: []string{"TheClaw"}}
 
 	participants := []*common.Participant{
 		woody,
@@ -45,18 +45,18 @@ func Test_getLowestMaxScorePairSets(t *testing.T) {
 }
 
 func Test_getMinCycleLength(t *testing.T) {
-	woody := &common.Participant{Username: "woody"}
-	buzz := &common.Participant{Username: "buzz"}
-	rex := &common.Participant{Username: "rex"}
-	hamm := &common.Participant{Username: "hamm"}
-	jessie := &common.Participant{Username: "jessie"}
+	woody := &common.Participant{EmailAddress: "woody"}
+	buzz := &common.Participant{EmailAddress: "buzz"}
+	rex := &common.Participant{EmailAddress: "rex"}
+	hamm := &common.Participant{EmailAddress: "hamm"}
+	jessie := &common.Participant{EmailAddress: "jessie"}
 
-	pairs := []*pair{
-		&pair{giver: woody, receiver: rex},
-		&pair{giver: rex, receiver: hamm},
-		&pair{giver: hamm, receiver: woody},
-		&pair{giver: buzz, receiver: jessie},
-		&pair{giver: jessie, receiver: buzz},
+	pairs := []*common.Pair{
+		&common.Pair{Giver: woody, Receiver: rex},
+		&common.Pair{Giver: rex, Receiver: hamm},
+		&common.Pair{Giver: hamm, Receiver: woody},
+		&common.Pair{Giver: buzz, Receiver: jessie},
+		&common.Pair{Giver: jessie, Receiver: buzz},
 	}
 
 	minCycleLength := getMinCycleLength(pairs)
@@ -65,12 +65,12 @@ func Test_getMinCycleLength(t *testing.T) {
 	}
 
 	// same pairs, different order in the slice
-	pairs = []*pair{
-		&pair{giver: woody, receiver: rex},
-		&pair{giver: buzz, receiver: jessie},
-		&pair{giver: rex, receiver: hamm},
-		&pair{giver: hamm, receiver: woody},
-		&pair{giver: jessie, receiver: buzz},
+	pairs = []*common.Pair{
+		&common.Pair{Giver: woody, Receiver: rex},
+		&common.Pair{Giver: buzz, Receiver: jessie},
+		&common.Pair{Giver: rex, Receiver: hamm},
+		&common.Pair{Giver: hamm, Receiver: woody},
+		&common.Pair{Giver: jessie, Receiver: buzz},
 	}
 
 	minCycleLength = getMinCycleLength(pairs)
@@ -79,12 +79,12 @@ func Test_getMinCycleLength(t *testing.T) {
 	}
 
 	// long cycle
-	pairs = []*pair{
-		&pair{giver: woody, receiver: buzz},
-		&pair{giver: buzz, receiver: rex},
-		&pair{giver: rex, receiver: hamm},
-		&pair{giver: hamm, receiver: jessie},
-		&pair{giver: jessie, receiver: woody},
+	pairs = []*common.Pair{
+		&common.Pair{Giver: woody, Receiver: buzz},
+		&common.Pair{Giver: buzz, Receiver: rex},
+		&common.Pair{Giver: rex, Receiver: hamm},
+		&common.Pair{Giver: hamm, Receiver: jessie},
+		&common.Pair{Giver: jessie, Receiver: woody},
 	}
 
 	minCycleLength = getMinCycleLength(pairs)
@@ -93,12 +93,12 @@ func Test_getMinCycleLength(t *testing.T) {
 	}
 
 	// long cycle, different order
-	pairs = []*pair{
-		&pair{giver: buzz, receiver: rex},
-		&pair{giver: hamm, receiver: jessie},
-		&pair{giver: jessie, receiver: woody},
-		&pair{giver: rex, receiver: hamm},
-		&pair{giver: woody, receiver: buzz},
+	pairs = []*common.Pair{
+		&common.Pair{Giver: buzz, Receiver: rex},
+		&common.Pair{Giver: hamm, Receiver: jessie},
+		&common.Pair{Giver: jessie, Receiver: woody},
+		&common.Pair{Giver: rex, Receiver: hamm},
+		&common.Pair{Giver: woody, Receiver: buzz},
 	}
 
 	minCycleLength = getMinCycleLength(pairs)
@@ -107,12 +107,12 @@ func Test_getMinCycleLength(t *testing.T) {
 	}
 
 	// cycle of 1?
-	pairs = []*pair{
-		&pair{giver: buzz, receiver: rex},
-		&pair{giver: hamm, receiver: woody},
-		&pair{giver: jessie, receiver: jessie},
-		&pair{giver: rex, receiver: hamm},
-		&pair{giver: woody, receiver: buzz},
+	pairs = []*common.Pair{
+		&common.Pair{Giver: buzz, Receiver: rex},
+		&common.Pair{Giver: hamm, Receiver: woody},
+		&common.Pair{Giver: jessie, Receiver: jessie},
+		&common.Pair{Giver: rex, Receiver: hamm},
+		&common.Pair{Giver: woody, Receiver: buzz},
 	}
 
 	minCycleLength = getMinCycleLength(pairs)

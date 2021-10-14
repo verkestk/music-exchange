@@ -15,7 +15,7 @@ var (
 	previousParticipants         []*common.Participant
 	surveyFilepath               string
 	newParticipants              []*common.Participant
-	usernameColumn               int
+	emailAddressColumn           int
 	platformsColumn              int
 	ignoreColumnsStr             string
 	ignoreColumns                []int
@@ -26,12 +26,12 @@ func init() {
 	rootCmd.AddCommand(collectSuveyResults)
 	collectSuveyResults.Flags().StringVarP(&surveyFilepath, "survey", "s", "", "filepath of CSV survey results")
 	collectSuveyResults.Flags().StringVarP(&previousParticipantsFilepath, "previous-participants", "p", "", "filepath of the JSON file used for the last exchange")
-	collectSuveyResults.Flags().IntVarP(&usernameColumn, "username", "u", -1, "index of the column containing the username")
+	collectSuveyResults.Flags().IntVarP(&emailAddressColumn, "email-address", "e", -1, "index of the column containing the email address")
 	collectSuveyResults.Flags().IntVarP(&platformsColumn, "platforms", "l", -1, "index of the column containing the music platforms")
 	collectSuveyResults.Flags().StringVarP(&ignoreColumnsStr, "ignore", "i", "", "indexes of columns to ignore")
-	collectSuveyResults.Flags().StringVarP(&platformsSeparator, "separator", "e", ";", "separator character between platform choices")
+	collectSuveyResults.Flags().StringVarP(&platformsSeparator, "separator", "a", ";", "separator character between platform choices")
 	collectSuveyResults.MarkFlagRequired("survey")
-	collectSuveyResults.MarkFlagRequired("usernameColumn")
+	collectSuveyResults.MarkFlagRequired("email-address")
 	collectSuveyResults.MarkFlagRequired("platformsColumn")
 }
 
@@ -45,8 +45,8 @@ var collectSuveyResults = &cobra.Command{
 
 		var err error
 
-		if usernameColumn < 0 {
-			return fmt.Errorf("invalid username")
+		if emailAddressColumn < 0 {
+			return fmt.Errorf("invalid email-address")
 		}
 
 		if platformsColumn < 0 {
@@ -71,7 +71,7 @@ var collectSuveyResults = &cobra.Command{
 			}
 		}
 
-		newParticipants, err = common.GetParticipantsFromCSVFile(surveyFilepath, usernameColumn, platformsColumn, ignoreColumns, platformsSeparator)
+		newParticipants, err = common.GetParticipantsFromCSVFile(surveyFilepath, emailAddressColumn, platformsColumn, ignoreColumns, platformsSeparator)
 		if err != nil {
 			return err
 		}

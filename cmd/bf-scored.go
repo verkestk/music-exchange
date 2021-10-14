@@ -40,6 +40,17 @@ var bfScoredCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return bfscored.DoExchange(participants, instructionsTMPL)
+		pairs, err := bfscored.DoExchange(participants, instructionsTMPL)
+		if err != nil {
+			return err
+		}
+
+		if emailInstructions {
+			err = common.EmailInstructions(pairs, instructionsTMPL, emailSubject, emailTestRecipient, smtpHostEnvVar, smtpPortEnvVar, smtpUsernameEnvVar, smtpPasswordEnvVar)
+		} else {
+			err = common.WriteInstructions(pairs, instructionsTMPL, instructionsFileExtension)
+		}
+
+		return err
 	},
 }

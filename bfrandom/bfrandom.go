@@ -1,7 +1,6 @@
 package bfrandom
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"text/template"
@@ -11,21 +10,17 @@ import (
 )
 
 // DoExchange matches particpants as givers and recipients, generating files with instructions for each participant
-func DoExchange(participants []*common.Participant, instructionsTMPL *template.Template, avoid int) error {
+func DoExchange(participants []*common.Participant, instructionsTMPL *template.Template, avoid int) ([]*common.Pair, error) {
 
 	targets := copy(participants)
 	shuffle(participants, targets, avoid)
 
-	fmt.Println("participants")
-	for i := range participants {
-
-		err := participants[i].WriteInstructions(targets[i], instructionsTMPL)
-		if err != nil {
-			return err
-		}
+	pairs := make([]*common.Pair, len(participants))
+	for index := range participants {
+		pairs[index] = &common.Pair{Giver: participants[index], Receiver: targets[index]}
 	}
 
-	return nil
+	return pairs, nil
 }
 
 func copy(input []*common.Participant) []*common.Participant {
@@ -49,22 +44,22 @@ func ok(givers, receivers []*common.Participant, avoid int) bool {
 	for i := range givers {
 
 		// the giver and the receiver can't be the same person
-		if givers[i].Username == receivers[i].Username {
-			log.Printf("%s is the same as %s\n", givers[i].Username, receivers[i].Username)
+		if givers[i].EmailAddress == receivers[i].EmailAddress {
+			log.Printf("%s is the same as %s\n", givers[i].EmailAddress, receivers[i].EmailAddress)
 			return false
 		}
 
 		// avoid pairing the same people
 		for j := 0; j < avoid && j < len(givers[i].LatestRecipients); j++ {
-			if givers[i].LatestRecipients[j] == receivers[i].Username {
-				log.Printf("%s gave to %s %d times ago\n", givers[i].Username, receivers[i].Username, j+1)
+			if givers[i].LatestRecipients[j] == receivers[i].EmailAddress {
+				log.Printf("%s gave to %s %d times ago\n", givers[i].EmailAddress, receivers[i].EmailAddress, j+1)
 				return false
 			}
 		}
 
 		// the giver and the receiver must have at least one platform in common
 		if !givers[i].IsCompatible(receivers[i]) {
-			log.Printf("%s and %s have no platforms in common\n", givers[i].Username, receivers[i].Username)
+			log.Printf("%s and %s have no platforms in common\n", givers[i].EmailAddress, receivers[i].EmailAddress)
 			return false
 		}
 	}

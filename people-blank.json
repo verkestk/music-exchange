@@ -1,6 +1,6 @@
 [
   {
-    "Username": "",
+    "EmailAddress": "",
     "Skip": true,
     "LatestRecipients": [],
     "Platforms": [
@@ -23,7 +23,7 @@
       "Answer": ""
     }]
   }, {
-    "Username": "",
+    "EmailAddress": "",
     "LatestRecipients": [],
     "Platforms": [
       ""
@@ -45,7 +45,7 @@
       "Answer": ""
     }]
   }, {
-    "Username": "",
+    "EmailAddress": "",
     "LatestRecipients": [],
     "Platforms": [
       ""
@@ -67,7 +67,7 @@
       "Answer": ""
     }]
   }, {
-    "Username": "",
+    "EmailAddress": "",
     "LatestRecipients": [],
     "Platforms": [
       ""
@@ -89,7 +89,7 @@
       "Answer": ""
     }]
   }, {
-    "Username": "",
+    "EmailAddress": "",
     "LatestRecipients": [],
     "Platforms": [
       ""
