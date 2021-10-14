@@ -47,39 +47,39 @@ func sendHTMLMail(subject, body, recipient, hostEnvVar, portEnvVar, usernameEnvV
 
 	c, err := smtp.Dial(servername)
 	if err != nil {
-		return err
+		return fmt.Errorf("error sending email (Dial): %w", err)
 	}
 
 	c.StartTLS(tlsconfig)
 
 	// Auth
 	if err = c.Auth(auth); err != nil {
-		return err
+		return fmt.Errorf("error sending email (Auth): %w", err)
 	}
 
 	// To && From
 	if err = c.Mail(from.Address); err != nil {
-		return err
+		return fmt.Errorf("error sending email (Mail from): %w", err)
 	}
 
 	if err = c.Rcpt(to.Address); err != nil {
-		return err
+		return fmt.Errorf("error sending email (Mail to): %w", err)
 	}
 
 	// Data
 	w, err := c.Data()
 	if err != nil {
-		return err
+		return fmt.Errorf("error sending email (Data): %w", err)
 	}
 
 	_, err = w.Write([]byte(message))
 	if err != nil {
-		return err
+		return fmt.Errorf("error sending email (Write): %w", err)
 	}
 
 	err = w.Close()
 	if err != nil {
-		return err
+		return fmt.Errorf("error sending email (Close): %w", err)
 	}
 
 	c.Quit()

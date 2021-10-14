@@ -51,6 +51,10 @@ var bfScoredCmd = &cobra.Command{
 			err = common.WriteInstructions(pairs, instructionsTMPL, instructionsFileExtension)
 		}
 
-		return err
+		if err != nil {
+			return err
+		}
+
+		return common.UpdateParticipantsJSON(participantsFilepath, pairs)
 	},
 }

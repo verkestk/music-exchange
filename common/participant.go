@@ -256,3 +256,38 @@ func WriteInstructions(pairs []*Pair, tmpl *template.Template, extension string)
 	}
 	return nil
 }
+
+// UpdateParticipantsJSON takes
+func UpdateParticipantsJSON(participantsFilepath string, pairs []*Pair) error {
+	participants, err := GetParticipantsFromJSONFile(participantsFilepath, false)
+	if err != nil {
+		return err
+	}
+
+	// capture the new assignments in a map
+	newAssignmentsGiverToRecipient := map[string]string{}
+	for _, pair := range pairs {
+		newAssignmentsGiverToRecipient[pair.Giver.EmailAddress] = pair.Receiver.EmailAddress
+	}
+
+	// prepend the LatestRecipients with the new assignments
+	for _, participant := range participants {
+		if recipient, ok := newAssignmentsGiverToRecipient[participant.EmailAddress]; ok {
+			participant.LatestRecipients = append([]string{recipient}, participant.LatestRecipients...)
+		}
+	}
+
+	// generate the JSON
+	jsonStr, err := GenerateParticipantsJSON(participants)
+	if err != nil {
+		return err
+	}
+
+	// overwrite the original JSON file
+	err = ioutil.WriteFile(participantsFilepath, []byte(jsonStr), 0644)
+	if err != nil {
+		return fmt.Errorf("error overwriting json file: %w", err)
+	}
+
+	return nil
+}
