@@ -52,7 +52,7 @@ func DoExchange(participants []*common.Participant, instructionsTMPL *template.T
 
 		for _, p := range randomPairSet.pairs {
 			if p.score() > 0 {
-				fmt.Println("", p.giver.ID)
+				fmt.Println("", p.giver.Username)
 			}
 		}
 	}
@@ -161,18 +161,18 @@ func getLowestMaxScorePairSets(pairSets []*pairSet) (sets []*pairSet, maxScore f
 func getMinCycleLength(pairs []*pair) (minCycleLength int) {
 	minCycleLength = -1
 
-	giverIDtoPair := map[string]*pair{}
+	giverUsernametoPair := map[string]*pair{}
 	for _, p := range pairs {
-		giverIDtoPair[p.giver.ID] = p
+		giverUsernametoPair[p.giver.Username] = p
 	}
 
 	for _, p := range pairs {
 		cycleLength := 1
 		originalGiver := p.giver
 		currentPair := p
-		for originalGiver.ID != currentPair.receiver.ID {
+		for originalGiver.Username != currentPair.receiver.Username {
 			cycleLength++
-			currentPair = giverIDtoPair[currentPair.receiver.ID]
+			currentPair = giverUsernametoPair[currentPair.receiver.Username]
 		}
 
 		if minCycleLength == -1 || cycleLength < minCycleLength {
@@ -191,7 +191,7 @@ func getRandomPairSet(pairSets []*pairSet) *pairSet {
 func (p *pair) score() float64 {
 	score := float64(0)
 	for i, previousRecipient := range p.giver.LatestRecipients {
-		if previousRecipient == p.receiver.ID {
+		if previousRecipient == p.receiver.Username {
 			score += float64(1) / float64(i+1)
 		}
 	}

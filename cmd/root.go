@@ -26,11 +26,6 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.PersistentFlags().StringVarP(&participantsFilepath, "participants", "p", "", "input file containing participants")
-	rootCmd.PersistentFlags().StringVarP(&instructionsFilepath, "instructions", "i", "", "input file containing instructions template")
-}
-
 // Execute executes a CLI command - boilerplate for cobra
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {

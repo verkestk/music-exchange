@@ -14,9 +14,11 @@ var avoid int
 
 func init() {
 	rootCmd.AddCommand(bfRandomCmd)
+	bfRandomCmd.Flags().StringVarP(&participantsFilepath, "participants", "p", "", "input file containing participants")
+	bfRandomCmd.Flags().StringVarP(&instructionsFilepath, "instructions", "i", "", "input file containing instructions template")
 	bfRandomCmd.Flags().IntVarP(&avoid, "avoid", "a", 0, "how many past recipients to avoid")
-	bfScoredCmd.MarkFlagRequired("participants")
-	bfScoredCmd.MarkFlagRequired("instructions")
+	bfRandomCmd.MarkFlagRequired("participants")
+	bfRandomCmd.MarkFlagRequired("instructions")
 }
 
 var bfRandomCmd = &cobra.Command{
@@ -32,7 +34,7 @@ var bfRandomCmd = &cobra.Command{
 		}
 
 		var err error
-		participants, err = common.GetParticipantsFromFile(participantsFilepath)
+		participants, err = common.GetParticipantsFromJSONFile(participantsFilepath, true)
 		if err != nil {
 			return err
 		}

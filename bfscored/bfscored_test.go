@@ -6,12 +6,16 @@ import (
 	"github.com/verkestk/music-exchange/common"
 )
 
+func Test_generateAllPairSets(t *testing.T) {
+	// TODO
+}
+
 func Test_getLongestMinCyclePairSets(t *testing.T) {
-	woody := &common.Participant{ID: "woody", Platforms: []string{"TheClaw"}}
-	buzz := &common.Participant{ID: "buzz", Platforms: []string{"TheClaw"}}
-	rex := &common.Participant{ID: "rex", Platforms: []string{"TheClaw"}}
-	hamm := &common.Participant{ID: "hamm", Platforms: []string{"TheClaw"}}
-	jessie := &common.Participant{ID: "jessie", Platforms: []string{"TheClaw"}}
+	woody := &common.Participant{Username: "woody", Platforms: []string{"TheClaw"}}
+	buzz := &common.Participant{Username: "buzz", Platforms: []string{"TheClaw"}}
+	rex := &common.Participant{Username: "rex", Platforms: []string{"TheClaw"}}
+	hamm := &common.Participant{Username: "hamm", Platforms: []string{"TheClaw"}}
+	jessie := &common.Participant{Username: "jessie", Platforms: []string{"TheClaw"}}
 
 	participants := []*common.Participant{
 		woody,
@@ -32,12 +36,20 @@ func Test_getLongestMinCyclePairSets(t *testing.T) {
 	}
 }
 
+func Test_getLowestSumScorePairSets(t *testing.T) {
+	// TODO
+}
+
+func Test_getLowestMaxScorePairSets(t *testing.T) {
+	// TODO
+}
+
 func Test_getMinCycleLength(t *testing.T) {
-	woody := &common.Participant{ID: "woody"}
-	buzz := &common.Participant{ID: "buzz"}
-	rex := &common.Participant{ID: "rex"}
-	hamm := &common.Participant{ID: "hamm"}
-	jessie := &common.Participant{ID: "jessie"}
+	woody := &common.Participant{Username: "woody"}
+	buzz := &common.Participant{Username: "buzz"}
+	rex := &common.Participant{Username: "rex"}
+	hamm := &common.Participant{Username: "hamm"}
+	jessie := &common.Participant{Username: "jessie"}
 
 	pairs := []*pair{
 		&pair{giver: woody, receiver: rex},
@@ -107,4 +119,20 @@ func Test_getMinCycleLength(t *testing.T) {
 	if minCycleLength != 1 {
 		t.Errorf("minCycleLength = %d; want 1", minCycleLength)
 	}
+}
+
+func Test_getRandomPairSet(t *testing.T) {
+	// TODO
+}
+
+func Test_pair_score(t *testing.T) {
+	// TODO
+}
+
+func Test_generateAllOrders(t *testing.T) {
+	// TODO
+}
+
+func Test_permutations(t *testing.T) {
+	// TODO
 }

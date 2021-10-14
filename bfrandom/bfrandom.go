@@ -49,22 +49,22 @@ func ok(givers, receivers []*common.Participant, avoid int) bool {
 	for i := range givers {
 
 		// the giver and the receiver can't be the same person
-		if givers[i].ID == receivers[i].ID {
-			log.Printf("%s is the same as %s\n", givers[i].ID, receivers[i].ID)
+		if givers[i].Username == receivers[i].Username {
+			log.Printf("%s is the same as %s\n", givers[i].Username, receivers[i].Username)
 			return false
 		}
 
 		// avoid pairing the same people
 		for j := 0; j < avoid && j < len(givers[i].LatestRecipients); j++ {
-			if givers[i].LatestRecipients[j] == receivers[i].ID {
-				log.Printf("%s gave to %s %d times ago\n", givers[i].ID, receivers[i].ID, j+1)
+			if givers[i].LatestRecipients[j] == receivers[i].Username {
+				log.Printf("%s gave to %s %d times ago\n", givers[i].Username, receivers[i].Username, j+1)
 				return false
 			}
 		}
 
 		// the giver and the receiver must have at least one platform in common
 		if !givers[i].IsCompatible(receivers[i]) {
-			log.Printf("%s and %s have no platforms in common\n", givers[i].ID, receivers[i].ID)
+			log.Printf("%s and %s have no platforms in common\n", givers[i].Username, receivers[i].Username)
 			return false
 		}
 	}
