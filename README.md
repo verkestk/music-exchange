@@ -41,6 +41,10 @@ Optional Parameters
 
 Parameters for sending instructions via email
 * `--email` (**required**): set this flag to true to send instructions by email, otherwise defaults to writing instructions to local files
+* `--smtp-host`: set this to set what OS Env Var this tool will reference for the SMTP host (default `MUSIC_EXCHANGE_SMTP_HOST`)
+* `--smtp-port`: set this to set what OS Env Var this tool will reference for the SMTP port (default `MUSIC_EXCHANGE_SMTP_PORT`)
+* `--smtp-username`: set this to set what OS Env Var this tool will reference for the SMTP username, which should be a full email address (default `MUSIC_EXCHANGE_SMTP_USERNAME`)
+* `--smtp-password`: set this to set what OS Env Var this tool will reference for the SMTP password (default `MUSIC_EXCHANGE_SMTP_PASSWORD`)
 * `--subject`: what email subject to use, defaults to "Music Exchange Assignment"
 * `--recipient`: will send all instructions to this email address rather than the recipients' email addresses, useful for testing
 
