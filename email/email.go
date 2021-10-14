@@ -1,22 +1,37 @@
-package common
+package email
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/mail"
 	"net/smtp"
 	"os"
-
-	"crypto/tls"
-	"net/mail"
 )
 
-func sendHTMLMail(subject, body, recipient, hostEnvVar, portEnvVar, usernameEnvVar, passwordEnvVar string) error {
+// Sender provides and interface for sending email
+type Sender interface {
+	SendMail(subject, body, recipient string) error
+}
 
-	smtpHost := os.Getenv(hostEnvVar)
-	smtpPort := os.Getenv(portEnvVar)
-	smtpUsername := os.Getenv(usernameEnvVar)
-	smtpPassword := os.Getenv(passwordEnvVar)
+type smtpSender struct {
+	host     string
+	port     string
+	username string
+	password string
+}
 
-	from := mail.Address{Name: "", Address: smtpUsername}
+// GetSMTPSender returns an EmailSender that uses SMTP
+func GetSMTPSender(hostEnvVar, portEnvVar, usernameEnvVar, passwordEnvVar string) Sender {
+	return &smtpSender{
+		host:     os.Getenv(hostEnvVar),
+		port:     os.Getenv(portEnvVar),
+		username: os.Getenv(usernameEnvVar),
+		password: os.Getenv(passwordEnvVar),
+	}
+}
+
+func (sender *smtpSender) SendMail(subject, body, recipient string) error {
+	from := mail.Address{Name: "", Address: sender.username}
 	to := mail.Address{Name: "", Address: recipient}
 	subj := subject
 
@@ -36,16 +51,15 @@ func sendHTMLMail(subject, body, recipient, hostEnvVar, portEnvVar, usernameEnvV
 	message += "\r\n" + body
 
 	// Connect to the SMTP Server
-	servername := fmt.Sprintf("%s:%s", smtpHost, smtpPort)
-	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpHost)
+	auth := smtp.PlainAuth("", sender.username, sender.password, sender.host)
 
 	// TLS config
 	tlsconfig := &tls.Config{
 		InsecureSkipVerify: true,
-		ServerName:         smtpHost,
+		ServerName:         sender.host,
 	}
 
-	c, err := smtp.Dial(servername)
+	c, err := smtp.Dial(fmt.Sprintf("%s:%s", sender.host, sender.port))
 	if err != nil {
 		return fmt.Errorf("error sending email (Dial): %w", err)
 	}

@@ -9,6 +9,8 @@ import (
 	"os"
 	"strings"
 	"text/template"
+
+	"github.com/verkestk/music-exchange/email"
 )
 
 // Pair is a pair of participants
@@ -219,7 +221,7 @@ func (p *Pair) Score() float64 {
 }
 
 // EmailInstructions emails the instructions to the participants based on provided email template
-func EmailInstructions(pairs []*Pair, tmpl *template.Template, subject, emailTestRecipient, smtpHostEnvVar, smtpPortEnvVar, smtpUsernameEnvVar, smtpPasswordEnvVar string) error {
+func EmailInstructions(pairs []*Pair, tmpl *template.Template, subject, emailTestRecipient string, sender email.Sender) error {
 	// TODO how to handling errors?
 	for _, pair := range pairs {
 		instructions, err := pair.Giver.getInstructions(pair.Receiver, tmpl)
@@ -232,7 +234,7 @@ func EmailInstructions(pairs []*Pair, tmpl *template.Template, subject, emailTes
 			instructionsRecipient = emailTestRecipient
 		}
 		fmt.Printf("sending instructions for %s to %s\n", pair.Giver.EmailAddress, instructionsRecipient)
-		err = sendHTMLMail(subject, instructions, instructionsRecipient, smtpHostEnvVar, smtpPortEnvVar, smtpUsernameEnvVar, smtpPasswordEnvVar)
+		err = sender.SendMail(subject, instructions, instructionsRecipient)
 		if err != nil {
 			return err
 		}

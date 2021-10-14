@@ -8,6 +8,7 @@ import (
 
 	"github.com/verkestk/music-exchange/bfrandom"
 	"github.com/verkestk/music-exchange/common"
+	"github.com/verkestk/music-exchange/email"
 )
 
 var avoid int
@@ -49,7 +50,8 @@ var bfRandomCmd = &cobra.Command{
 		}
 
 		if emailInstructions {
-			err = common.EmailInstructions(pairs, instructionsTMPL, emailSubject, emailTestRecipient, smtpHostEnvVar, smtpPortEnvVar, smtpUsernameEnvVar, smtpPasswordEnvVar)
+			sender := email.GetSMTPSender(smtpHostEnvVar, smtpPortEnvVar, smtpUsernameEnvVar, smtpPasswordEnvVar)
+			err = common.EmailInstructions(pairs, instructionsTMPL, emailSubject, emailTestRecipient, sender)
 		} else {
 			err = common.WriteInstructions(pairs, instructionsTMPL, instructionsFileExtension)
 		}
