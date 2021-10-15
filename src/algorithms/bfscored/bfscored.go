@@ -3,21 +3,20 @@ package bfscored
 import (
 	"fmt"
 	"math/rand"
-	"text/template"
 	"time"
 
-	"github.com/verkestk/music-exchange/common"
+	"github.com/verkestk/music-exchange/src/participant"
 )
 
 type pairSet struct {
-	pairs          []*common.Pair
+	pairs          []*participant.Pair
 	maxScore       float64
 	sumScore       float64
 	minCycleLength int
 }
 
 // DoExchange matches particpants as givers and recipients, generating files with instructions for each participant
-func DoExchange(participants []*common.Participant, instructionsTMPL *template.Template) ([]*common.Pair, error) {
+func DoExchange(participants []*participant.Participant) ([]*participant.Pair, error) {
 	pairSets := generateAllPairSets(participants)
 
 	if len(pairSets) == 0 {
@@ -55,12 +54,12 @@ func DoExchange(participants []*common.Participant, instructionsTMPL *template.T
 	return randomPairSet.pairs, nil
 }
 
-func generateAllPairSets(participants []*common.Participant) []*pairSet {
+func generateAllPairSets(participants []*participant.Participant) []*pairSet {
 	orders := generateAllOrders(len(participants))
 
 	pairSets := []*pairSet{}
 	for _, order := range orders {
-		setPairs := []*common.Pair{}
+		setPairs := []*participant.Pair{}
 		isOrderValid := true
 		for i, o := range order {
 			if i == o {
@@ -72,7 +71,7 @@ func generateAllPairSets(participants []*common.Participant) []*pairSet {
 				isOrderValid = false
 				break
 			}
-			setPairs = append(setPairs, &common.Pair{Giver: participants[i], Receiver: participants[o]})
+			setPairs = append(setPairs, &participant.Pair{Giver: participants[i], Receiver: participants[o]})
 		}
 
 		if isOrderValid {
@@ -146,10 +145,10 @@ func getLowestMaxScorePairSets(pairSets []*pairSet) (sets []*pairSet, maxScore f
 	return sets, maxScore
 }
 
-func getMinCycleLength(pairs []*common.Pair) (minCycleLength int) {
+func getMinCycleLength(pairs []*participant.Pair) (minCycleLength int) {
 	minCycleLength = -1
 
-	giverEmailAddresstoPair := map[string]*common.Pair{}
+	giverEmailAddresstoPair := map[string]*participant.Pair{}
 	for _, p := range pairs {
 		giverEmailAddresstoPair[p.Giver.EmailAddress] = p
 	}

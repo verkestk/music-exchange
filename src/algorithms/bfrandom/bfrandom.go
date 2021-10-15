@@ -3,28 +3,27 @@ package bfrandom
 import (
 	"log"
 	"math/rand"
-	"text/template"
 	"time"
 
-	"github.com/verkestk/music-exchange/common"
+	"github.com/verkestk/music-exchange/src/participant"
 )
 
 // DoExchange matches particpants as givers and recipients, generating files with instructions for each participant
-func DoExchange(participants []*common.Participant, instructionsTMPL *template.Template, avoid int) ([]*common.Pair, error) {
+func DoExchange(participants []*participant.Participant, avoid int) ([]*participant.Pair, error) {
 
 	targets := copy(participants)
 	shuffle(participants, targets, avoid)
 
-	pairs := make([]*common.Pair, len(participants))
+	pairs := make([]*participant.Pair, len(participants))
 	for index := range participants {
-		pairs[index] = &common.Pair{Giver: participants[index], Receiver: targets[index]}
+		pairs[index] = &participant.Pair{Giver: participants[index], Receiver: targets[index]}
 	}
 
 	return pairs, nil
 }
 
-func copy(input []*common.Participant) []*common.Participant {
-	output := make([]*common.Participant, len(input))
+func copy(input []*participant.Participant) []*participant.Participant {
+	output := make([]*participant.Participant, len(input))
 	for i := range input {
 		output[i] = input[i]
 	}
@@ -32,7 +31,7 @@ func copy(input []*common.Participant) []*common.Participant {
 	return output
 }
 
-func shuffle(givers, receivers []*common.Participant, avoid int) {
+func shuffle(givers, receivers []*participant.Participant, avoid int) {
 	rand.Seed(time.Now().UnixNano())
 
 	for !ok(givers, receivers, avoid) {
@@ -40,7 +39,7 @@ func shuffle(givers, receivers []*common.Participant, avoid int) {
 	}
 }
 
-func ok(givers, receivers []*common.Participant, avoid int) bool {
+func ok(givers, receivers []*participant.Participant, avoid int) bool {
 	for i := range givers {
 
 		// the giver and the receiver can't be the same person

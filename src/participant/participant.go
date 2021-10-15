@@ -1,4 +1,4 @@
-package common
+package participant
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/verkestk/music-exchange/email"
+	"github.com/verkestk/music-exchange/src/email"
 )
 
 // Pair is a pair of participants

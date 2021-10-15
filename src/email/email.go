@@ -13,16 +13,16 @@ type Sender interface {
 	SendMail(subject, body, recipient string) error
 }
 
-type smtpSender struct {
+type gmailSender struct {
 	host     string
 	port     string
 	username string
 	password string
 }
 
-// GetSMTPSender returns an EmailSender that uses SMTP
-func GetSMTPSender(hostEnvVar, portEnvVar, usernameEnvVar, passwordEnvVar string) Sender {
-	return &smtpSender{
+// GetGmailSender returns an EmailSender that uses SMTP
+func GetGmailSender(hostEnvVar, portEnvVar, usernameEnvVar, passwordEnvVar string) Sender {
+	return &gmailSender{
 		host:     os.Getenv(hostEnvVar),
 		port:     os.Getenv(portEnvVar),
 		username: os.Getenv(usernameEnvVar),
@@ -30,7 +30,7 @@ func GetSMTPSender(hostEnvVar, portEnvVar, usernameEnvVar, passwordEnvVar string
 	}
 }
 
-func (sender *smtpSender) SendMail(subject, body, recipient string) error {
+func (sender *gmailSender) SendMail(subject, body, recipient string) error {
 	from := mail.Address{Name: "", Address: sender.username}
 	to := mail.Address{Name: "", Address: recipient}
 	subj := subject

@@ -1,4 +1,4 @@
-package common
+package participant
 
 import (
 	"testing"
