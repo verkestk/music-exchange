@@ -3,30 +3,24 @@ package bfscored
 import (
 	"fmt"
 	"math/rand"
-	"text/template"
 	"time"
 
-	"github.com/verkestk/music-exchange/common"
+	"github.com/verkestk/music-exchange/src/participant"
 )
 
-type pair struct {
-	giver    *common.Participant
-	receiver *common.Participant
-}
-
 type pairSet struct {
-	pairs          []*pair
+	pairs          []*participant.Pair
 	maxScore       float64
 	sumScore       float64
 	minCycleLength int
 }
 
 // DoExchange matches particpants as givers and recipients, generating files with instructions for each participant
-func DoExchange(participants []*common.Participant, instructionsTMPL *template.Template) error {
+func DoExchange(participants []*participant.Participant) ([]*participant.Pair, error) {
 	pairSets := generateAllPairSets(participants)
 
 	if len(pairSets) == 0 {
-		return fmt.Errorf("no compatible receipient ordering found")
+		return nil, fmt.Errorf("no compatible receipient ordering found")
 	}
 
 	fmt.Println("number of sets", len(pairSets))
@@ -51,28 +45,21 @@ func DoExchange(participants []*common.Participant, instructionsTMPL *template.T
 		fmt.Println("The following participants have had the same receipient in a past exchange:")
 
 		for _, p := range randomPairSet.pairs {
-			if p.score() > 0 {
-				fmt.Println("", p.giver.ID)
+			if p.Score() > 0 {
+				fmt.Println("", p.Giver.EmailAddress)
 			}
 		}
 	}
 
-	for _, p := range randomPairSet.pairs {
-		err := p.giver.WriteInstructions(p.receiver, instructionsTMPL)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return randomPairSet.pairs, nil
 }
 
-func generateAllPairSets(participants []*common.Participant) []*pairSet {
+func generateAllPairSets(participants []*participant.Participant) []*pairSet {
 	orders := generateAllOrders(len(participants))
 
 	pairSets := []*pairSet{}
 	for _, order := range orders {
-		setPairs := []*pair{}
+		setPairs := []*participant.Pair{}
 		isOrderValid := true
 		for i, o := range order {
 			if i == o {
@@ -84,7 +71,7 @@ func generateAllPairSets(participants []*common.Participant) []*pairSet {
 				isOrderValid = false
 				break
 			}
-			setPairs = append(setPairs, &pair{giver: participants[i], receiver: participants[o]})
+			setPairs = append(setPairs, &participant.Pair{Giver: participants[i], Receiver: participants[o]})
 		}
 
 		if isOrderValid {
@@ -93,7 +80,7 @@ func generateAllPairSets(participants []*common.Participant) []*pairSet {
 			minCycleLength := getMinCycleLength(setPairs)
 
 			for _, sp := range setPairs {
-				score := sp.score()
+				score := sp.Score()
 				if score > maxScore {
 					maxScore = score
 				}
@@ -158,21 +145,21 @@ func getLowestMaxScorePairSets(pairSets []*pairSet) (sets []*pairSet, maxScore f
 	return sets, maxScore
 }
 
-func getMinCycleLength(pairs []*pair) (minCycleLength int) {
+func getMinCycleLength(pairs []*participant.Pair) (minCycleLength int) {
 	minCycleLength = -1
 
-	giverIDtoPair := map[string]*pair{}
+	giverEmailAddresstoPair := map[string]*participant.Pair{}
 	for _, p := range pairs {
-		giverIDtoPair[p.giver.ID] = p
+		giverEmailAddresstoPair[p.Giver.EmailAddress] = p
 	}
 
 	for _, p := range pairs {
 		cycleLength := 1
-		originalGiver := p.giver
+		originalGiver := p.Giver
 		currentPair := p
-		for originalGiver.ID != currentPair.receiver.ID {
+		for originalGiver.EmailAddress != currentPair.Receiver.EmailAddress {
 			cycleLength++
-			currentPair = giverIDtoPair[currentPair.receiver.ID]
+			currentPair = giverEmailAddresstoPair[currentPair.Receiver.EmailAddress]
 		}
 
 		if minCycleLength == -1 || cycleLength < minCycleLength {
@@ -186,17 +173,6 @@ func getMinCycleLength(pairs []*pair) (minCycleLength int) {
 func getRandomPairSet(pairSets []*pairSet) *pairSet {
 	rand.Seed(time.Now().UnixNano())
 	return pairSets[rand.Intn(len(pairSets))]
-}
-
-func (p *pair) score() float64 {
-	score := float64(0)
-	for i, previousRecipient := range p.giver.LatestRecipients {
-		if previousRecipient == p.receiver.ID {
-			score += float64(1) / float64(i+1)
-		}
-	}
-
-	return score
 }
 
 func generateAllOrders(length int) [][]int {

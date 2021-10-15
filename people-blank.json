@@ -1,7 +1,6 @@
 [
   {
-    "Name": "",
-    "ID": "",
+    "EmailAddress": "",
     "Skip": true,
     "LatestRecipients": [],
     "Platforms": [
@@ -24,8 +23,7 @@
       "Answer": ""
     }]
   }, {
-    "Name": "",
-    "ID": "",
+    "EmailAddress": "",
     "LatestRecipients": [],
     "Platforms": [
       ""
@@ -47,8 +45,7 @@
       "Answer": ""
     }]
   }, {
-    "Name": "",
-    "ID": "",
+    "EmailAddress": "",
     "LatestRecipients": [],
     "Platforms": [
       ""
@@ -70,8 +67,7 @@
       "Answer": ""
     }]
   }, {
-    "Name": "",
-    "ID": "",
+    "EmailAddress": "",
     "LatestRecipients": [],
     "Platforms": [
       ""
@@ -93,8 +89,7 @@
       "Answer": ""
     }]
   }, {
-    "Name": "",
-    "ID": "",
+    "EmailAddress": "",
     "LatestRecipients": [],
     "Platforms": [
       ""

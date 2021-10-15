@@ -1,0 +1,32 @@
+<h1>Secret Music Exchange!</h1>
+
+<p>You will be selecting music for <strong>{{.ReceiverName}}</strong>.</p>
+
+<p>Here's what they had to say about themselves:</p>
+
+{{ range .ReceiverResponses }}
+<div>
+  <div><strong>{{ .Question }}</strong></div>
+  <div>{{ .Answer }}</div>
+  <br/>
+</div>
+{{ end }}
+
+<h2>Instructions</h2>
+
+<h3>1: Select Music</h3>
+<p>Create a sharable playlist (between 45 and 75 minutes) on one of the platforms your recipient uses:</p>
+
+<ul>
+{{ range .ReceiverPlatforms }}<li>{{ . }}</li>
+{{ end }}
+</ul>
+
+<h3>2: Copy Link</h3>
+<p>If you are using an album, copy the album link from Spotify. If you are creating a playlist, copy the playlist link.</p>
+
+<h3>3: Share Music</h3>
+<p>We'll do this all at once. When it's time, you will share that link on Slack. @mention then in the #music-appreciation channel, so we can all see what you picked.</p>
+
+<h3>4: Enjoy the music shared with you!</h3>
+<p>You'll be getting some music to enjoy too.</p>
