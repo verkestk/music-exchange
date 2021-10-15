@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strings"
 	"text/template"
 
@@ -43,16 +42,11 @@ type Instructions struct {
 	ReceiverPlatforms []string
 }
 
-// GetParticipantsFromJSONFile transforms the json in a file to a slice of Particpant
-func GetParticipantsFromJSONFile(filepath string, skip bool) ([]*Participant, error) {
-	byteValue, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return nil, fmt.Errorf("error reading from file path %s: %w", filepath, err)
-	}
-
+// GetParticipantsFromJSON transforms the json to a slice of Particpant
+func GetParticipantsFromJSON(jsonStr string, skip bool) ([]*Participant, error) {
 	participants := []*Participant{}
 	allParticipants := []*Participant{}
-	err = json.Unmarshal(byteValue, &allParticipants)
+	err := json.Unmarshal([]byte(jsonStr), &allParticipants)
 
 	if err != nil {
 		return nil, fmt.Errorf("error decoding json: %w", err)
@@ -71,14 +65,9 @@ func GetParticipantsFromJSONFile(filepath string, skip bool) ([]*Participant, er
 	return participants, nil
 }
 
-// GetParticipantsFromCSVFile transforms the CSV in a file to a slice of Particpant
-func GetParticipantsFromCSVFile(filepath string, emailAddressColumn, platformsColumn int, ignoreColumns []int, platformsSeparator string) ([]*Participant, error) {
-	reader, err := os.Open(filepath)
-	if err != nil {
-		return nil, err
-	}
-
-	r := csv.NewReader(reader)
+// GetParticipantsFromCSV transforms the CSV to a slice of Particpant
+func GetParticipantsFromCSV(csvStr string, emailAddressColumn, platformsColumn int, ignoreColumns []int, platformsSeparator string) ([]*Participant, error) {
+	r := csv.NewReader(strings.NewReader(csvStr))
 	rows, err := r.ReadAll()
 	if err != nil {
 		return nil, err
@@ -261,7 +250,12 @@ func WriteInstructions(pairs []*Pair, tmpl *template.Template, extension string)
 
 // UpdateParticipantsJSON takes
 func UpdateParticipantsJSON(participantsFilepath string, pairs []*Pair) error {
-	participants, err := GetParticipantsFromJSONFile(participantsFilepath, false)
+	byteValue, err := ioutil.ReadFile(participantsFilepath)
+	if err != nil {
+		return fmt.Errorf("error reading from file path %s: %w", participantsFilepath, err)
+	}
+
+	participants, err := GetParticipantsFromJSON(string(byteValue), false)
 	if err != nil {
 		return err
 	}

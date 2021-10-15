@@ -2,6 +2,7 @@ package operation
 
 import (
 	"fmt"
+	"io/ioutil"
 	"text/template"
 
 	"github.com/verkestk/music-exchange/src/algorithms/bfrandom"
@@ -20,6 +21,7 @@ const (
 type PairConfig struct {
 	// General Configuration
 	ParticipantsFilepath   string
+	ParticipantsJSON       string
 	InstructionsFilepath   string
 	UpdateParticipantsFile bool
 	Algorithm              int // see constants
@@ -45,16 +47,25 @@ type PairConfig struct {
 
 // Prepare intakes the configuration, processes and validates
 func (config *PairConfig) Prepare() error {
-	if config.ParticipantsFilepath == "" {
-		return fmt.Errorf("participants required")
-	}
 
 	if config.InstructionsFilepath == "" {
 		return fmt.Errorf("instructions required")
 	}
 
+	if config.ParticipantsFilepath == "" && config.ParticipantsJSON == "" {
+		return fmt.Errorf("participants required")
+	}
+	if config.ParticipantsJSON == "" {
+		// generate JSON from file
+		byteValue, err := ioutil.ReadFile(config.ParticipantsFilepath)
+		if err != nil {
+			return fmt.Errorf("error reading from file path %s: %w", config.ParticipantsFilepath, err)
+		}
+		config.ParticipantsJSON = string(byteValue)
+	}
+
 	var err error
-	config.participants, err = participant.GetParticipantsFromJSONFile(config.ParticipantsFilepath, true)
+	config.participants, err = participant.GetParticipantsFromJSON(config.ParticipantsJSON, true)
 	if err != nil {
 		return err
 	}

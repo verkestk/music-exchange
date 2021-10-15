@@ -2,6 +2,7 @@ package operation
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strconv"
 	"strings"
 
@@ -11,7 +12,9 @@ import (
 // CollectConfig contains the inputs neccessary for collecting survey results
 type CollectConfig struct {
 	SurveyFilepath               string
+	SurveyCSV                    string
 	PreviousParticipantsFilepath string
+	PreviousParticipantsJSON     string
 	EmailAddressColumn           int
 	PlatformsColumn              int
 	IgnoreColumnsStr             string
@@ -50,15 +53,35 @@ func (config *CollectConfig) Prepare() error {
 		}
 	}
 
-	if config.PreviousParticipantsFilepath != "" {
-		config.previousParticipants, err = participant.GetParticipantsFromJSONFile(config.PreviousParticipantsFilepath, false)
+	if config.PreviousParticipantsFilepath == "" && config.PreviousParticipantsJSON == "" {
+		return fmt.Errorf("previous participant filepath OR JSON string required")
+	}
+	if config.PreviousParticipantsJSON == "" {
+		// generate JSON from file
+		byteValue, err := ioutil.ReadFile(config.PreviousParticipantsFilepath)
 		if err != nil {
-			return err
+			return fmt.Errorf("error reading from file path %s: %w", config.PreviousParticipantsFilepath, err)
 		}
+		config.PreviousParticipantsJSON = string(byteValue)
+	}
+	config.previousParticipants, err = participant.GetParticipantsFromJSON(config.PreviousParticipantsJSON, false)
+	if err != nil {
+		return err
 	}
 
-	config.newParticipants, err = participant.GetParticipantsFromCSVFile(
-		config.SurveyFilepath,
+	if config.SurveyFilepath == "" && config.SurveyCSV == "" {
+		return fmt.Errorf("survey filepath OR JSON string required")
+	}
+	if config.SurveyCSV == "" {
+		// generate JSON from file
+		byteValue, err := ioutil.ReadFile(config.SurveyFilepath)
+		if err != nil {
+			return fmt.Errorf("error reading from file path %s: %w", config.SurveyFilepath, err)
+		}
+		config.SurveyCSV = string(byteValue)
+	}
+	config.newParticipants, err = participant.GetParticipantsFromCSV(
+		config.SurveyCSV,
 		config.EmailAddressColumn,
 		config.PlatformsColumn,
 		config.ignoreColumns,
