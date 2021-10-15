@@ -20,7 +20,7 @@ func DoExchange(participants []*participant.Participant) ([]*participant.Pair, e
 	pairSets := generateAllPairSets(participants)
 
 	if len(pairSets) == 0 {
-		return nil, fmt.Errorf("no compatible receipient ordering found")
+		return nil, fmt.Errorf("no compatible receipient ordering found for %d participants", len(participants))
 	}
 
 	fmt.Println("number of sets", len(pairSets))

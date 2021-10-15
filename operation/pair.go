@@ -20,11 +20,12 @@ const (
 // PairConfig contains the inputs neccessary to pair the participants
 type PairConfig struct {
 	// General Configuration
-	ParticipantsFilepath   string
-	ParticipantsJSON       string
-	InstructionsFilepath   string
-	UpdateParticipantsFile bool
-	Algorithm              int // see constants
+	ParticipantsFilepath    string
+	ParticipantsJSON        string
+	InstructionsFilepath    string
+	InstructionsTemplateStr string
+	UpdateParticipantsFile  bool
+	Algorithm               int // see constants
 
 	// For Writing Instructions to File
 	InstructionsFileExtension string
@@ -33,10 +34,7 @@ type PairConfig struct {
 	EmailInstructions  bool
 	EmailSubject       string
 	EmailTestRecipient string
-	SMTPHostEnvVar     string
-	SMTPPortEnvVar     string
-	SMTPUsernameEnvVar string
-	SMTPPasswordEnvVar string
+	EmailSender        email.Sender
 
 	// Only for the BF-Random algorithm
 	Avoid int
@@ -47,9 +45,21 @@ type PairConfig struct {
 
 // Prepare intakes the configuration, processes and validates
 func (config *PairConfig) Prepare() error {
+	var err error
 
-	if config.InstructionsFilepath == "" {
+	if config.InstructionsFilepath == "" && config.InstructionsTemplateStr == "" {
 		return fmt.Errorf("instructions required")
+	}
+	if config.InstructionsTemplateStr == "" {
+		config.instructionsTMPL, err = template.ParseFiles(config.InstructionsFilepath)
+		if err != nil {
+			return err
+		}
+	} else {
+		config.instructionsTMPL, err = template.New("instructions").Parse(config.InstructionsTemplateStr)
+		if err != nil {
+			return err
+		}
 	}
 
 	if config.ParticipantsFilepath == "" && config.ParticipantsJSON == "" {
@@ -64,13 +74,7 @@ func (config *PairConfig) Prepare() error {
 		config.ParticipantsJSON = string(byteValue)
 	}
 
-	var err error
 	config.participants, err = participant.GetParticipantsFromJSON(config.ParticipantsJSON, true)
-	if err != nil {
-		return err
-	}
-
-	config.instructionsTMPL, err = template.ParseFiles(config.InstructionsFilepath)
 	if err != nil {
 		return err
 	}
@@ -89,14 +93,15 @@ func DoPair(config *PairConfig) error {
 		pairs, err = bfrandom.DoExchange(config.participants, config.Avoid)
 	case BFScored:
 		pairs, err = bfscored.DoExchange(config.participants)
+	default:
+		return fmt.Errorf("unsupported algorithm: %d", config.Algorithm)
 	}
 	if err != nil {
 		return err
 	}
 
 	if config.EmailInstructions {
-		sender := email.GetGmailSender(config.SMTPHostEnvVar, config.SMTPPortEnvVar, config.SMTPUsernameEnvVar, config.SMTPPasswordEnvVar)
-		err = participant.EmailInstructions(pairs, config.instructionsTMPL, config.EmailSubject, config.EmailTestRecipient, sender)
+		err = participant.EmailInstructions(pairs, config.instructionsTMPL, config.EmailSubject, config.EmailTestRecipient, config.EmailSender)
 	} else {
 		err = participant.WriteInstructions(pairs, config.instructionsTMPL, config.InstructionsFileExtension)
 	}

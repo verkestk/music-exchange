@@ -28,7 +28,7 @@ type CollectConfig struct {
 // Prepare intakes the configuration, processes and validates
 func (config *CollectConfig) Prepare() error {
 
-	if config.SurveyFilepath == "" {
+	if config.SurveyFilepath == "" && config.SurveyCSV == "" {
 		return fmt.Errorf("survey required")
 	}
 
@@ -53,10 +53,7 @@ func (config *CollectConfig) Prepare() error {
 		}
 	}
 
-	if config.PreviousParticipantsFilepath == "" && config.PreviousParticipantsJSON == "" {
-		return fmt.Errorf("previous participant filepath OR JSON string required")
-	}
-	if config.PreviousParticipantsJSON == "" {
+	if config.PreviousParticipantsJSON == "" && config.PreviousParticipantsFilepath != "" {
 		// generate JSON from file
 		byteValue, err := ioutil.ReadFile(config.PreviousParticipantsFilepath)
 		if err != nil {
@@ -64,9 +61,12 @@ func (config *CollectConfig) Prepare() error {
 		}
 		config.PreviousParticipantsJSON = string(byteValue)
 	}
-	config.previousParticipants, err = participant.GetParticipantsFromJSON(config.PreviousParticipantsJSON, false)
-	if err != nil {
-		return err
+
+	if config.PreviousParticipantsJSON != "" {
+		config.previousParticipants, err = participant.GetParticipantsFromJSON(config.PreviousParticipantsJSON, false)
+		if err != nil {
+			return err
+		}
 	}
 
 	if config.SurveyFilepath == "" && config.SurveyCSV == "" {

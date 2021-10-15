@@ -9,7 +9,11 @@ import (
 )
 
 var (
-	pairConfig = &operation.PairConfig{}
+	pairConfig         = &operation.PairConfig{}
+	smtpHostEnvVar     = ""
+	smtpPortEnvVar     = ""
+	smtpUsernameEnvVar = ""
+	smtpPasswordEnvVar = ""
 )
 
 func init() {
@@ -21,10 +25,10 @@ func init() {
 	pairRootCmd.PersistentFlags().BoolVarP(&pairConfig.UpdateParticipantsFile, "update", "u", false, "set in order to update the JSON input file with the latest pairings")
 	pairRootCmd.PersistentFlags().StringVarP(&pairConfig.EmailSubject, "subject", "b", "Music Exchange Assignment", "set this to change the subject the emails are sent with")
 	pairRootCmd.PersistentFlags().StringVarP(&pairConfig.EmailTestRecipient, "recipient", "r", "", "set this to always send the instructions to this specific email address - great for testing")
-	pairRootCmd.PersistentFlags().StringVarP(&pairConfig.SMTPHostEnvVar, "smtp-host", "", "MUSIC_EXCHANGE_SMTP_HOST", "change the environment variable this program references to get the SMPT host")
-	pairRootCmd.PersistentFlags().StringVarP(&pairConfig.SMTPPortEnvVar, "smtp-port", "", "MUSIC_EXCHANGE_SMTP_PORT", "change the environment variable this program references to get the SMPT port")
-	pairRootCmd.PersistentFlags().StringVarP(&pairConfig.SMTPUsernameEnvVar, "smtp-username", "", "MUSIC_EXCHANGE_SMTP_USERNAME", "change the environment variable this program references to get the SMPT username")
-	pairRootCmd.PersistentFlags().StringVarP(&pairConfig.SMTPPasswordEnvVar, "smtp-password", "", "MUSIC_EXCHANGE_SMTP_PASSWORD", "change the environment variable this program references to get the SMPT password")
+	pairRootCmd.PersistentFlags().StringVarP(&smtpHostEnvVar, "smtp-host", "", "MUSIC_EXCHANGE_SMTP_HOST", "change the environment variable this program references to get the SMPT host")
+	pairRootCmd.PersistentFlags().StringVarP(&smtpPortEnvVar, "smtp-port", "", "MUSIC_EXCHANGE_SMTP_PORT", "change the environment variable this program references to get the SMPT port")
+	pairRootCmd.PersistentFlags().StringVarP(&smtpUsernameEnvVar, "smtp-username", "", "MUSIC_EXCHANGE_SMTP_USERNAME", "change the environment variable this program references to get the SMPT username")
+	pairRootCmd.PersistentFlags().StringVarP(&smtpPasswordEnvVar, "smtp-password", "", "MUSIC_EXCHANGE_SMTP_PASSWORD", "change the environment variable this program references to get the SMPT password")
 	pairRootCmd.MarkFlagRequired("participants")
 	pairRootCmd.MarkFlagRequired("instructions")
 }

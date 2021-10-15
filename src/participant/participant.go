@@ -169,6 +169,10 @@ func (p *Participant) IsCompatible(otherParticipant *Participant) bool {
 // Previous participants who also exist in the participants slice have their pairing history included.
 // Previous participants who don't exist in the participants slice are copied in with the pairing history and marked to be skipped.
 func MergeParticipants(participants, previousParticipants []*Participant) []*Participant {
+	if previousParticipants == nil || len(previousParticipants) == 0 {
+		return participants
+	}
+
 	// map participants by ID
 	currentParticipantsMap := map[string]*Participant{}
 	for _, participant := range participants {

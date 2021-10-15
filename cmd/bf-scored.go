@@ -15,6 +15,7 @@ var bfScoredCmd = &cobra.Command{
 	Short: "Evaluate all possible pairings and pick one of the best",
 	Args: func(cmd *cobra.Command, args []string) error {
 		pairConfig.Algorithm = operation.BFScored
+		pairConfig.EmailSender = email.GetGmailSender(smtpHostEnvVar, smtpPortEnvVar, smtpUsernameEnvVar, smtpPasswordEnvVar)
 		return pairConfig.Prepare()
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
