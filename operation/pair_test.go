@@ -229,5 +229,4 @@ func Test_PairConfig_Prepare_AlgorithmOptions(t *testing.T) {
 	if config.prepared {
 		t.Errorf("config should not be prepared")
 	}
-
 }

@@ -11,10 +11,10 @@ const (
 	platformsSeparator = ";"
 
 	validCSV = `Email Address,What music do you like?,Who's your favorite musician?,What music platforms do you use?,Skip,Skip
-woody@toy.story,I like a good western toon.,Randy Newman,Spotify;YouTube,Ignore,Ignore
+woody@toy.story,I like a good western tune.,Randy Newman,Spotify;YouTube,Ignore,Ignore
 buzz@toy.story,Space Rock,Randy Newman,Spotify;YouTube,Ignore,Ignore
 rex@toy.story,Prehistoric,Randy Newman,Apple Music;YouTube;YouTube Music;Pandora,Ignore,Ignore
-hamm@toy.story,Classy Toons,Randy Newman,Spotify;Pandora,Ignore,Ignore
+hamm@toy.story,Classy Tunes,Randy Newman,Spotify;Pandora,Ignore,Ignore
 jessie@toy.story,good ol' classics from the wild west.,Randy Newman,Spotify;Pandora,Ignore,Ignore`
 
 	validCollectTestJSON = `[{
