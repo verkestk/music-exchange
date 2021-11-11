@@ -6,8 +6,28 @@ import (
 	"github.com/verkestk/music-exchange/src/participant"
 )
 
-func Test_generateAllPairSets(t *testing.T) {
-	// TODO
+func Test_DoExchange(t *testing.T) {
+	// participants []*participant.Participant, allowRepeatRecipients bool
+	woody := &participant.Participant{EmailAddress: "woody", Platforms: []string{"TheClaw"}, LatestRecipients: []string{"buzz"}}
+	buzz := &participant.Participant{EmailAddress: "buzz", Platforms: []string{"TheClaw"}, LatestRecipients: []string{"woody"}}
+	rex := &participant.Participant{EmailAddress: "rex", Platforms: []string{"DayCare"}}
+	hamm := &participant.Participant{EmailAddress: "hamm", Platforms: []string{"DayCare"}}
+	jessie := &participant.Participant{EmailAddress: "jessie", Platforms: []string{"DayCare"}}
+
+	participants := []*participant.Participant{woody, buzz, rex, hamm, jessie}
+
+	pairs, err := DoExchange(participants, true)
+	if err != nil {
+		t.Errorf("unexpected error: %w", err)
+	}
+	if len(pairs) != 5 {
+		t.Errorf("expected %d pairs - got %d", 5, len(pairs))
+	}
+
+	_, err = DoExchange(participants, false)
+	if err == nil {
+		t.Errorf("expected error: %w", err)
+	}
 }
 
 func Test_getLongestMinCyclePairSets(t *testing.T) {
@@ -25,7 +45,7 @@ func Test_getLongestMinCyclePairSets(t *testing.T) {
 		jessie,
 	}
 
-	pairSets := generateAllPairSets(participants)
+	pairSets := generateAllPairSets(participants, true)
 
 	longestMinCyclePairSets, minCycleLength := getLongestMinCyclePairSets(pairSets)
 	if minCycleLength != 5 {
@@ -34,14 +54,6 @@ func Test_getLongestMinCyclePairSets(t *testing.T) {
 	if len(longestMinCyclePairSets) != 24 {
 		t.Errorf("len(longestMinCyclePairSets) = %d; want 24", len(longestMinCyclePairSets))
 	}
-}
-
-func Test_getLowestSumScorePairSets(t *testing.T) {
-	// TODO
-}
-
-func Test_getLowestMaxScorePairSets(t *testing.T) {
-	// TODO
 }
 
 func Test_getMinCycleLength(t *testing.T) {
@@ -119,20 +131,4 @@ func Test_getMinCycleLength(t *testing.T) {
 	if minCycleLength != 1 {
 		t.Errorf("minCycleLength = %d; want 1", minCycleLength)
 	}
-}
-
-func Test_getRandomPairSet(t *testing.T) {
-	// TODO
-}
-
-func Test_pair_score(t *testing.T) {
-	// TODO
-}
-
-func Test_generateAllOrders(t *testing.T) {
-	// TODO
-}
-
-func Test_permutations(t *testing.T) {
-	// TODO
 }

@@ -1,0 +1,41 @@
+[{
+  "EmailAddress": "woody@toy.story",
+  "Skip": true,
+  "LatestRecipients": ["buzz@toy.story"],
+  "Platforms": [
+    "Spotify"
+  ],
+  "Responses": [{
+    "Question": "What music do you like?",
+    "Answer": "songs that make me feel like a real cowboy"
+  },{
+    "Question": "Who's your favorite musician?",
+    "Answer": "Randy Newman"
+  }]
+  }, {
+  "EmailAddress": "buzz@toy.story",
+  "LatestRecipients": ["slinky@toy.story", "woody@toy.story"],
+  "Platforms": [
+    "Spotify"
+  ],
+  "Responses": [{
+    "Question": "What music do you like?",
+    "Answer": "infinitely good music"
+  },{
+    "Question": "Who's your favorite musician?",
+    "Answer": "Randy Newman"
+  }]
+  }, {
+  "EmailAddress": "slinky@toy.story",
+  "LatestRecipients": ["buzz@toy.story"],
+  "Platforms": [
+    ""
+  ],
+  "Responses": [{
+    "Question": "What music do you like?",
+    "Answer": "long songs"
+  },{
+    "Question": "Who's your favorite musician?",
+    "Answer": "Randy Newman"
+  }]
+}]

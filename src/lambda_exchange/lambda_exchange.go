@@ -30,6 +30,7 @@ type Config struct {
 	SurveyPlatformsColumnStr    string
 	SurveyPlatformsSeparator    string
 	SurveyS3ObjectKey           string
+	AllowRepeatParticipants     bool
 }
 
 // Do does the music exchange
@@ -91,23 +92,16 @@ func Do(exchangeConfig *Config) error {
 	if err != nil {
 		return err
 	}
-	newJSON, err := operation.DoCollect(collectConfig)
+	newParticipantsJSON, err := operation.DoCollect(collectConfig)
 	if err != nil {
 		return err
 	}
 
-	// step 5: write the new JSON
-	newJSONObjectKey := fmt.Sprintf("participants_%d", time.Now().Unix())
-	err = putObjectContent(ctx, s3Client, exchangeConfig.S3Bucket, newJSONObjectKey, newJSON)
-	if err != nil {
-		return fmt.Errorf("error writing new participants JSON file")
-	}
-
-	// step 6: do the pair operation
+	// step 5: do the pair operation
 	pairConfig := &operation.PairConfig{
-		ParticipantsJSON:        newJSON,
+		ParticipantsJSON:        newParticipantsJSON,
+		AllowRepeatParticipants: exchangeConfig.AllowRepeatParticipants,
 		InstructionsTemplateStr: emailTemplateStr,
-		UpdateParticipantsFile:  true,
 		Algorithm:               operation.BFScored,
 		EmailInstructions:       true,
 		EmailSubject:            exchangeConfig.EmailSubject,
@@ -120,15 +114,26 @@ func Do(exchangeConfig *Config) error {
 		return err
 	}
 
-	// step 4: run the pairing algorithm, send email, and update JSON in s3
-	return operation.DoPair(pairConfig)
+	newParticipantsJSON, err = operation.DoPair(pairConfig)
+	if err != nil {
+		return err
+	}
+
+	// step 6: write the new participants JSON
+	newJSONObjectKey := fmt.Sprintf("participants_%d.json", time.Now().Unix())
+	err = putObjectContent(ctx, s3Client, exchangeConfig.S3Bucket, newJSONObjectKey, newParticipantsJSON)
+	if err != nil {
+		return fmt.Errorf("error writing new participants JSON file: %w", err)
+	}
+
+	return nil
 }
 
 // gets the latest of executable for this build's OS/Architecture
 func getMostRecentParticipantsObject(ctx context.Context, s3Client *s3.Client, bucket string) (object *types.Object, err error) {
 	params := &s3.ListObjectsV2Input{
 		Bucket:  aws.String(bucket),
-		Prefix:  aws.String("particiants_"),
+		Prefix:  aws.String("participants_"),
 		MaxKeys: 9999,
 	}
 
@@ -159,28 +164,11 @@ func getObjectContent(ctx context.Context, s3Client *s3.Client, bucket, key stri
 		return "", err
 	}
 
-	// output, err := client.GetObject(ctx, params)
-	// if err != nil {
-	// 	return "", err
-	// }
 	defer output.Body.Close()
 	bytes := make([]byte, output.ContentLength)
 	output.Body.Read(bytes)
 
 	return strings.Trim(string(bytes), " \n"), nil
-
-	// if output.ContentLength == 0 {
-	// 	return "", nil
-	// }
-	//
-	// defer output.Body.Close()
-	// bytes := make([]byte, output.ContentLength)
-	// _, err = output.Body.Read(bytes)
-	// if err != nil {
-	// 	return "", err
-	// }
-	//
-	// return string(bytes), nil
 }
 
 func putObjectContent(ctx context.Context, s3Client *s3.Client, bucket, key, content string) error {

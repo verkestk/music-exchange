@@ -21,6 +21,7 @@ var bfRandomCmd = &cobra.Command{
 		return pairConfig.Prepare()
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return operation.DoPair(pairConfig)
+		_, err := operation.DoPair(pairConfig)
+		return err
 	},
 }

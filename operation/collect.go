@@ -17,12 +17,14 @@ type CollectConfig struct {
 	PreviousParticipantsJSON     string
 	EmailAddressColumn           int
 	PlatformsColumn              int
-	IgnoreColumnsStr             string
+	IgnoreColumnsStr             string // comma-separated
 	PlatformsSeparator           string
 
 	ignoreColumns        []int
 	previousParticipants []*participant.Participant
 	newParticipants      []*participant.Participant
+
+	prepared bool
 }
 
 // Prepare intakes the configuration, processes and validates
@@ -42,6 +44,10 @@ func (config *CollectConfig) Prepare() error {
 		return fmt.Errorf("invalid platform")
 	}
 
+	if config.PlatformsSeparator == "" {
+		return fmt.Errorf("platforms separator required")
+	}
+
 	if config.IgnoreColumnsStr != "" {
 		ignoreColumnsStrs := strings.Split(config.IgnoreColumnsStr, ",")
 		config.ignoreColumns = make([]int, len(ignoreColumnsStrs))
@@ -57,7 +63,7 @@ func (config *CollectConfig) Prepare() error {
 		// generate JSON from file
 		byteValue, err := ioutil.ReadFile(config.PreviousParticipantsFilepath)
 		if err != nil {
-			return fmt.Errorf("error reading from file path %s: %w", config.PreviousParticipantsFilepath, err)
+			return fmt.Errorf("cannot colect survey results: error reading from participants file path %s: %w", config.PreviousParticipantsFilepath, err)
 		}
 		config.PreviousParticipantsJSON = string(byteValue)
 	}
@@ -65,18 +71,15 @@ func (config *CollectConfig) Prepare() error {
 	if config.PreviousParticipantsJSON != "" {
 		config.previousParticipants, err = participant.GetParticipantsFromJSON(config.PreviousParticipantsJSON, false)
 		if err != nil {
-			return err
+			return fmt.Errorf("cannot collect survey results: error getting participants: %w", err)
 		}
 	}
 
-	if config.SurveyFilepath == "" && config.SurveyCSV == "" {
-		return fmt.Errorf("survey filepath OR JSON string required")
-	}
 	if config.SurveyCSV == "" {
 		// generate JSON from file
 		byteValue, err := ioutil.ReadFile(config.SurveyFilepath)
 		if err != nil {
-			return fmt.Errorf("error reading from file path %s: %w", config.SurveyFilepath, err)
+			return fmt.Errorf("cannot collect survey results: error reading from survey file path %s: %w", config.SurveyFilepath, err)
 		}
 		config.SurveyCSV = string(byteValue)
 	}
@@ -91,11 +94,16 @@ func (config *CollectConfig) Prepare() error {
 		return err
 	}
 
+	config.prepared = true
 	return nil
 }
 
 // DoCollect performs the operation
 func DoCollect(config *CollectConfig) (string, error) {
+	if !config.prepared {
+		return "", fmt.Errorf("collect config not prepared")
+	}
+
 	participants := participant.MergeParticipants(config.newParticipants, config.previousParticipants)
 	return participant.GenerateParticipantsJSON(participants)
 }

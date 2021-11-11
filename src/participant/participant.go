@@ -49,7 +49,7 @@ func GetParticipantsFromJSON(jsonStr string, skip bool) ([]*Participant, error) 
 	err := json.Unmarshal([]byte(jsonStr), &allParticipants)
 
 	if err != nil {
-		return nil, fmt.Errorf("error decoding json: %w", err)
+		return nil, fmt.Errorf("error decoding participants json: %w", err)
 	}
 
 	for _, p := range allParticipants {
@@ -213,6 +213,12 @@ func (p *Pair) Score() float64 {
 	return score
 }
 
+// IsRepeat returns true if this is the same recipient as the most recent exchange
+func (p *Pair) IsRepeat() bool {
+	// TODO
+	return len(p.Giver.LatestRecipients) > 0 && p.Giver.LatestRecipients[0] == p.Receiver.EmailAddress
+}
+
 // EmailInstructions emails the instructions to the participants based on provided email template
 func EmailInstructions(pairs []*Pair, tmpl *template.Template, subject, emailTestRecipient string, sender email.Sender) error {
 	// TODO how to handling errors?
@@ -252,18 +258,8 @@ func WriteInstructions(pairs []*Pair, tmpl *template.Template, extension string)
 	return nil
 }
 
-// UpdateParticipantsJSON takes
-func UpdateParticipantsJSON(participantsFilepath string, pairs []*Pair) error {
-	byteValue, err := ioutil.ReadFile(participantsFilepath)
-	if err != nil {
-		return fmt.Errorf("error reading from file path %s: %w", participantsFilepath, err)
-	}
-
-	participants, err := GetParticipantsFromJSON(string(byteValue), false)
-	if err != nil {
-		return err
-	}
-
+// UpdateLatestRecipients adds in the latest pairing assignments to the participants
+func UpdateLatestRecipients(participants []*Participant, pairs []*Pair) {
 	// capture the new assignments in a map
 	newAssignmentsGiverToRecipient := map[string]string{}
 	for _, pair := range pairs {
@@ -276,7 +272,10 @@ func UpdateParticipantsJSON(participantsFilepath string, pairs []*Pair) error {
 			participant.LatestRecipients = append([]string{recipient}, participant.LatestRecipients...)
 		}
 	}
+}
 
+// UpdateParticipantsJSON takes
+func UpdateParticipantsJSON(participantsFilepath string, participants []*Participant) error {
 	// generate the JSON
 	jsonStr, err := GenerateParticipantsJSON(participants)
 	if err != nil {

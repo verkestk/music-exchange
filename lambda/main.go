@@ -12,7 +12,8 @@ import (
 
 // MusicExchangeEvent lambda event
 type MusicExchangeEvent struct {
-	SurveyS3ObjectKey string
+	SurveyS3ObjectKey       string
+	AllowRepeatParticipants bool
 }
 
 // HandleRequest required by AWS lambda
@@ -32,6 +33,7 @@ func HandleRequest(ctx context.Context, event MusicExchangeEvent) error {
 		SurveyPlatformsColumnStr:    os.Getenv("SURVEY_PLATFORMS_COLUMN"),
 		SurveyPlatformsSeparator:    os.Getenv("SURVEY_PLATFORMS_SEPARATOR"),
 		SurveyS3ObjectKey:           event.SurveyS3ObjectKey,
+		AllowRepeatParticipants:     event.AllowRepeatParticipants,
 	}
 
 	return lambda_exchange.Do(config)
