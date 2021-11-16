@@ -1,11 +1,16 @@
 package email
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"net/mail"
 	"net/smtp"
 	"os"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ses"
+	"github.com/aws/aws-sdk-go-v2/service/ses/types"
 )
 
 // Sender provides and interface for sending email
@@ -20,6 +25,12 @@ type gmailSender struct {
 	password string
 }
 
+type sesSender struct {
+	sesClient       *ses.Client
+	context         context.Context
+	fromEmailAdress string
+}
+
 // GetGmailSender returns an EmailSender that uses SMTP
 func GetGmailSender(hostEnvVar, portEnvVar, usernameEnvVar, passwordEnvVar string) Sender {
 	return &gmailSender{
@@ -27,6 +38,15 @@ func GetGmailSender(hostEnvVar, portEnvVar, usernameEnvVar, passwordEnvVar strin
 		port:     os.Getenv(portEnvVar),
 		username: os.Getenv(usernameEnvVar),
 		password: os.Getenv(passwordEnvVar),
+	}
+}
+
+// GetSESSender returns an EmailSender that uses SES
+func GetSESSender(ctx context.Context, sesClient *ses.Client, fromEmailAddress string) Sender {
+	return &sesSender{
+		sesClient:       sesClient,
+		context:         ctx,
+		fromEmailAdress: fromEmailAddress,
 	}
 }
 
@@ -98,4 +118,32 @@ func (sender *gmailSender) SendMail(subject, body, recipient string) error {
 
 	c.Quit()
 	return nil
+}
+
+func (sender *sesSender) SendMail(subject, body, recipient string) error {
+	destination := &types.Destination{
+		ToAddresses: []string{recipient},
+	}
+
+	message := &types.Message{
+		Subject: &types.Content{
+			Data:    aws.String(subject),
+			Charset: aws.String("UTF-8"),
+		},
+		Body: &types.Body{
+			Html: &types.Content{
+				Data:    aws.String(body),
+				Charset: aws.String("UTF-8"),
+			},
+		},
+	}
+
+	params := &ses.SendEmailInput{
+		Destination: destination,
+		Message:     message,
+		Source:      aws.String(sender.fromEmailAdress),
+	}
+
+	_, err := sender.sesClient.SendEmail(sender.context, params)
+	return err
 }

@@ -16,11 +16,11 @@ type pairSet struct {
 }
 
 // DoExchange matches particpants as givers and recipients, generating files with instructions for each participant
-func DoExchange(participants []*participant.Participant) ([]*participant.Pair, error) {
-	pairSets := generateAllPairSets(participants)
+func DoExchange(participants []*participant.Participant, allowRepeatRecipients bool) ([]*participant.Pair, error) {
+	pairSets := generateAllPairSets(participants, allowRepeatRecipients)
 
 	if len(pairSets) == 0 {
-		return nil, fmt.Errorf("no compatible receipient ordering found")
+		return nil, fmt.Errorf("no compatible receipient ordering found for %d participants", len(participants))
 	}
 
 	fmt.Println("number of sets", len(pairSets))
@@ -54,7 +54,7 @@ func DoExchange(participants []*participant.Participant) ([]*participant.Pair, e
 	return randomPairSet.pairs, nil
 }
 
-func generateAllPairSets(participants []*participant.Participant) []*pairSet {
+func generateAllPairSets(participants []*participant.Participant, allowRepeatRecipients bool) []*pairSet {
 	orders := generateAllOrders(len(participants))
 
 	pairSets := []*pairSet{}
@@ -79,15 +79,22 @@ func generateAllPairSets(participants []*participant.Participant) []*pairSet {
 			sumScore := float64(0)
 			minCycleLength := getMinCycleLength(setPairs)
 
+			hasRepeat := false
+
 			for _, sp := range setPairs {
 				score := sp.Score()
+
+				hasRepeat = hasRepeat || sp.IsRepeat()
+
 				if score > maxScore {
 					maxScore = score
 				}
 				sumScore += score
 			}
 
-			pairSets = append(pairSets, &pairSet{pairs: setPairs, maxScore: maxScore, sumScore: sumScore, minCycleLength: minCycleLength})
+			if !hasRepeat || allowRepeatRecipients {
+				pairSets = append(pairSets, &pairSet{pairs: setPairs, maxScore: maxScore, sumScore: sumScore, minCycleLength: minCycleLength})
+			}
 		}
 	}
 
